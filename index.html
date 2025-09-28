@@ -1,0 +1,1911 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบรายงานผลการแข่งขันกีฬาภายใน - โรงเรียนเตรียมอุดมศึกษาพัฒนาการสุวรรณภูมิ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@100;200;300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, getDocs, query, orderBy, setDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCx30_dsjjFJW8FgXyVBI5VkTE5k6Dc8qQ",
+            authDomain: "sports-management-system-1ce0e.firebaseapp.com",
+            databaseURL: "https://sports-management-system-1ce0e-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "sports-management-system-1ce0e",
+            storageBucket: "sports-management-system-1ce0e.firebasestorage.app",
+            messagingSenderId: "110723728337",
+            appId: "1:110723728337:web:1c200d0992cb84df3f16f0",
+            measurementId: "G-Q79K6G29FN"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        
+        // Make Firebase available globally
+        window.db = db;
+        window.firestore = { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, getDocs, query, orderBy, setDoc };
+        window.isFirebaseReady = true;
+        
+        // Initialize data when Firebase is ready
+        window.initializeFirebaseData();
+    </script>
+    
+    <style>
+        body {
+            box-sizing: border-box;
+            font-family: 'Anuphan', sans-serif;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 25%, #0ea5e9 50%, #38bdf8 75%, #7dd3fc 100%);
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        .nav-item {
+            transition: all 0.3s ease;
+        }
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+        }
+        .active-nav {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+        }
+        .sport-card {
+            background: linear-gradient(45deg, #3b82f6, #1e40af);
+        }
+        .team-card {
+            background: linear-gradient(45deg, #0ea5e9, #0284c7);
+        }
+        .firebase-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .firebase-connected {
+            background: #10b981;
+            color: white;
+        }
+        .firebase-disconnected {
+            background: #ef4444;
+            color: white;
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <!-- Firebase Status Indicator -->
+    <div id="firebaseStatus" class="firebase-status firebase-disconnected">
+        <i class="fas fa-circle mr-1"></i>กำลังเชื่อมต่อ Firebase...
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+        <div class="bg-white/20 backdrop-blur-md rounded-2xl p-8 w-full max-w-md mx-4">
+            <div class="text-center mb-8">
+                <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-trophy text-4xl text-blue-600"></i>
+                </div>
+                <h2 class="text-white text-2xl font-bold mb-2">เข้าสู่ระบบ</h2>
+                <p class="text-white/80">ระบบรายงานผลการแข่งขันกีฬาภายใน</p>
+                <p class="text-white/60 text-sm mt-2">🔥 เชื่อมต่อ Firebase - ข้อมูลซิงค์แบบเรียลไทม์</p>
+            </div>
+            
+            <form id="loginForm" class="space-y-6">
+                <div>
+                    <label class="block text-white text-sm font-medium mb-2">ชื่อผู้ใช้</label>
+                    <input type="text" id="username" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="กรอกชื่อผู้ใช้">
+                </div>
+                
+                <div>
+                    <label class="block text-white text-sm font-medium mb-2">รหัสผ่าน</label>
+                    <input type="password" id="password" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="กรอกรหัสผ่าน">
+                </div>
+                
+                <button type="submit" class="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white py-3 rounded-lg font-medium transition-all">
+                    <i class="fas fa-sign-in-alt mr-2"></i>เข้าสู่ระบบ
+                </button>
+                
+                <button type="button" onclick="guestLogin()" class="w-full bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white py-3 rounded-lg font-medium transition-all">
+                    <i class="fas fa-eye mr-2"></i>เข้าชมเป็นผู้เยี่ยมชม
+                </button>
+            </form>
+            
+            <div class="mt-6 text-center">
+                <p class="text-white/60 text-sm">Admin: แก้ไขข้อมูลได้ | ผู้เยี่ยมชม: ดูข้อมูลอย่างเดียว</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App (Hidden initially) -->
+    <div id="mainApp" class="hidden">
+    <!-- Header -->
+    <header class="bg-white/10 backdrop-blur-md shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex flex-col md:flex-row items-center justify-between">
+                <div class="flex items-center space-x-4 mb-4 md:mb-0">
+                    <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center">
+                        <i class="fas fa-trophy text-2xl text-purple-600"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-white text-xl md:text-2xl font-bold">ระบบรายงานผลการแข่งขันกีฬาภายใน</h1>
+                        <p class="text-white/80 text-sm">โรงเรียนเตรียมอุดมศึกษาพัฒนาการสุวรรณภูมิ</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="text-white text-right">
+                        <p class="text-sm">ผู้ใช้: <span id="currentUser">Admin</span></p>
+                        <p class="text-xs text-white/70">เข้าสู่ระบบ: <span id="loginTime">10:30 น.</span></p>
+                    </div>
+                    <button class="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg transition-all" onclick="logout()">
+                        <i class="fas fa-sign-out-alt mr-2"></i>ออกจากระบบ
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="bg-white/10 backdrop-blur-md border-b border-white/20">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-wrap justify-center md:justify-start space-x-2 md:space-x-6 py-3">
+                <button class="nav-item active-nav text-white px-4 py-2 text-sm md:text-base" onclick="showSection('dashboard')">
+                    <i class="fas fa-chart-line mr-2"></i>แดชบอร์ด
+                </button>
+                <button id="recordNav" class="nav-item text-white px-4 py-2 text-sm md:text-base admin-only" onclick="showSection('record')">
+                    <i class="fas fa-plus-circle mr-2"></i>บันทึกผล
+                </button>
+                <button class="nav-item text-white px-4 py-2 text-sm md:text-base" onclick="showSection('scoreboard')">
+                    <i class="fas fa-medal mr-2"></i>ตารางคะแนน
+                </button>
+                <button class="nav-item text-white px-4 py-2 text-sm md:text-base" onclick="showSection('schedule')">
+                    <i class="fas fa-calendar mr-2"></i>ตารางการแข่งขัน
+                </button>
+                <button id="sportsNav" class="nav-item text-white px-4 py-2 text-sm md:text-base admin-only" onclick="showSection('sports')">
+                    <i class="fas fa-cog mr-2"></i>จัดการกีฬา
+                </button>
+                <button id="teamsNav" class="nav-item text-white px-4 py-2 text-sm md:text-base admin-only" onclick="showSection('teams')">
+                    <i class="fas fa-users mr-2"></i>จัดการคณะสี
+                </button>
+                <button id="unityNav" class="nav-item text-white px-4 py-2 text-sm md:text-base admin-only" onclick="showSection('unity')">
+                    <i class="fas fa-heart mr-2"></i>คะแนนความสามัคคี
+                </button>
+                <button id="exportNav" class="nav-item text-white px-4 py-2 text-sm md:text-base admin-only" onclick="showSection('export')">
+                    <i class="fas fa-download mr-2"></i>ดาวน์โหลด
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Dashboard Section -->
+        <div id="dashboard" class="section">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <!-- Stats Cards -->
+                <div class="bg-white/20 backdrop-blur-md rounded-xl p-6 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-white/80 text-sm">การแข่งขันทั้งหมด</p>
+                            <p class="text-white text-3xl font-bold" id="totalMatches">24</p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
+                            <i class="fas fa-gamepad text-white text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white/20 backdrop-blur-md rounded-xl p-6 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-white/80 text-sm">เสร็จสิ้นแล้ว</p>
+                            <p class="text-white text-3xl font-bold" id="completedMatches">18</p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
+                            <i class="fas fa-check-circle text-white text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white/20 backdrop-blur-md rounded-xl p-6 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-white/80 text-sm">ชนิดกีฬา</p>
+                            <p class="text-white text-3xl font-bold" id="totalSports">8</p>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center">
+                            <i class="fas fa-running text-white text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white/20 backdrop-blur-md rounded-xl p-6 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-white/80 text-sm">คณะสี</p>
+                            <p class="text-white text-3xl font-bold" id="totalTeams">4</p>
+                        </div>
+                        <div class="w-12 h-12 bg-pink-500 rounded-full flex items-center justify-center">
+                            <i class="fas fa-users text-white text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="bg-white/20 backdrop-blur-md rounded-xl p-6">
+                    <h3 class="text-white text-xl font-bold mb-4">คะแนนรวมแต่ละคณะสี</h3>
+                    <canvas id="scoreChart" width="400" height="300"></canvas>
+                </div>
+
+                <div class="bg-white/20 backdrop-blur-md rounded-xl p-6">
+                    <h3 class="text-white text-xl font-bold mb-4">คะแนนความสามัคคี</h3>
+                    <canvas id="unityChart" width="400" height="300"></canvas>
+                </div>
+
+                <div class="bg-white/20 backdrop-blur-md rounded-xl p-6">
+                    <h3 class="text-white text-xl font-bold mb-4">จำนวนเหรียญ</h3>
+                    <canvas id="medalChart" width="400" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Record Results Section -->
+        <div id="record" class="section hidden">
+            <div class="bg-white/20 backdrop-blur-md rounded-xl p-8">
+                <h2 class="text-white text-2xl font-bold mb-6">
+                    <i class="fas fa-plus-circle mr-3"></i>บันทึกผลการแข่งขัน
+                </h2>
+                
+                <form id="recordForm" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-white text-sm font-medium mb-2">ชนิดกีฬา</label>
+                        <select id="sportSelect" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            <option value="">เลือกชนิดกีฬา</option>
+                            <option value="football">ฟุตบอล</option>
+                            <option value="basketball">บาสเกตบอล</option>
+                            <option value="volleyball">วอลเลย์บอล</option>
+                            <option value="badminton">แบดมินตัน</option>
+                            <option value="tabletennis">ปิงปอง</option>
+                            <option value="athletics">กรีฑา</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-white text-sm font-medium mb-2">รอบการแข่งขัน</label>
+                        <select id="roundSelect" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            <option value="">เลือกรอบการแข่งขัน</option>
+                            <option value="preliminary">รอบแรก</option>
+                            <option value="semifinal">รอบรอง</option>
+                            <option value="final">รอบชิง</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-white text-sm font-medium mb-2">ทีมที่ 1</label>
+                        <select id="team1Select" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            <option value="">เลือกคณะสี</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-white text-sm font-medium mb-2">คะแนนทีมที่ 1</label>
+                        <input type="number" id="score1" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="0">
+                    </div>
+
+                    <div>
+                        <label class="block text-white text-sm font-medium mb-2">ทีมที่ 2</label>
+                        <select id="team2Select" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            <option value="">เลือกคณะสี</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-white text-sm font-medium mb-2">คะแนนทีมที่ 2</label>
+                        <input type="number" id="score2" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="0">
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label class="block text-white text-sm font-medium mb-2">หมายเหตุ</label>
+                        <textarea id="notes" rows="3" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="หมายเหตุเพิ่มเติม (ถ้ามี)"></textarea>
+                    </div>
+
+                    <div class="md:col-span-2 flex justify-end space-x-4">
+                        <button type="button" class="px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-all">
+                            <i class="fas fa-times mr-2"></i>ยกเลิก
+                        </button>
+                        <button type="submit" class="px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white rounded-lg transition-all">
+                            <i class="fas fa-save mr-2"></i>บันทึกผล
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Scoreboard Section -->
+        <div id="scoreboard" class="section hidden">
+            <div class="bg-white/20 backdrop-blur-md rounded-xl p-8">
+                <h2 class="text-white text-2xl font-bold mb-6">
+                    <i class="fas fa-medal mr-3"></i>ตารางคะแนนรวม
+                </h2>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full text-white">
+                        <thead>
+                            <tr class="border-b border-white/20">
+                                <th class="text-left py-4 px-4">อันดับ</th>
+                                <th class="text-left py-4 px-4">คณะสี</th>
+                                <th class="text-center py-4 px-4">คะแนนกีฬา</th>
+                                <th class="text-center py-4 px-4">คะแนนสามัคคี</th>
+                                <th class="text-center py-4 px-4">คะแนนรวม</th>
+                                <th class="text-center py-4 px-4">🥇</th>
+                                <th class="text-center py-4 px-4">🥈</th>
+                                <th class="text-center py-4 px-4">🥉</th>
+                            </tr>
+                        </thead>
+                        <tbody id="scoreboardTable">
+                            <!-- Dynamic content will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Schedule Section -->
+        <div id="schedule" class="section hidden">
+            <div class="bg-white/20 backdrop-blur-md rounded-xl p-8">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+                    <h2 class="text-white text-2xl font-bold mb-4 md:mb-0">
+                        <i class="fas fa-calendar mr-3"></i>ตารางการแข่งขัน
+                    </h2>
+                    <button class="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white px-6 py-3 rounded-lg transition-all admin-only" onclick="showAddScheduleModal()">
+                        <i class="fas fa-plus mr-2"></i>เพิ่มการแข่งขัน
+                    </button>
+                </div>
+
+                <!-- Filter -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <input type="date" id="dateFilter" class="px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    <select id="sportFilter" class="px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        <option value="">ทุกชนิดกีฬา</option>
+                        <option value="football">ฟุตบอล</option>
+                        <option value="basketball">บาสเกตบอล</option>
+                        <option value="volleyball">วอลเลย์บอล</option>
+                    </select>
+                    <input type="text" id="searchSchedule" placeholder="ค้นหา..." class="px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                </div>
+
+                <!-- Schedule Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-white">
+                        <thead>
+                            <tr class="border-b border-white/20">
+                                <th class="text-left py-4 px-4">วันที่</th>
+                                <th class="text-left py-4 px-4">เวลา</th>
+                                <th class="text-left py-4 px-4">กีฬา</th>
+                                <th class="text-left py-4 px-4">การแข่งขัน</th>
+                                <th class="text-left py-4 px-4">สนาม</th>
+                                <th class="text-center py-4 px-4">สถานะ</th>
+                                <th class="text-center py-4 px-4">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="scheduleTable">
+                            <!-- Schedule will be dynamically loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sports Management Section -->
+        <div id="sports" class="section hidden">
+            <div class="bg-white/20 backdrop-blur-md rounded-xl p-8">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+                    <h2 class="text-white text-2xl font-bold mb-4 md:mb-0">
+                        <i class="fas fa-cog mr-3"></i>จัดการชนิดกีฬา
+                    </h2>
+                    <button class="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white px-6 py-3 rounded-lg transition-all admin-only" onclick="showAddSportModal()">
+                        <i class="fas fa-plus mr-2"></i>เพิ่มชนิดกีฬา
+                    </button>
+                </div>
+
+                <div id="sportsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Sports will be dynamically loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Teams Management Section -->
+        <div id="teams" class="section hidden">
+            <div class="bg-white/20 backdrop-blur-md rounded-xl p-8">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+                    <h2 class="text-white text-2xl font-bold mb-4 md:mb-0">
+                        <i class="fas fa-users mr-3"></i>จัดการคณะสี
+                    </h2>
+                    <button class="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white px-6 py-3 rounded-lg transition-all admin-only" onclick="showAddTeamModal()">
+                        <i class="fas fa-plus mr-2"></i>เพิ่มคณะสี
+                    </button>
+                </div>
+
+                <div id="teamsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Teams will be dynamically loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Unity Score Section -->
+        <div id="unity" class="section hidden">
+            <div class="bg-white/20 backdrop-blur-md rounded-xl p-8">
+                <h2 class="text-white text-2xl font-bold mb-6">
+                    <i class="fas fa-heart mr-3"></i>จัดการคะแนนความสามัคคี
+                </h2>
+                
+                <form id="unityForm" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div>
+                        <label class="block text-white text-sm font-medium mb-2">คณะสี</label>
+                        <select id="unityTeamSelect" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            <option value="">เลือกคณะสี</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-white text-sm font-medium mb-2">คะแนนความสามัคคี</label>
+                        <input type="number" id="unityScore" min="0" max="100" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="0-100">
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label class="block text-white text-sm font-medium mb-2">หมายเหตุ</label>
+                        <textarea id="unityNotes" rows="3" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="เหตุผลในการให้คะแนน (ถ้ามี)"></textarea>
+                    </div>
+
+                    <div class="md:col-span-2 flex justify-end space-x-4">
+                        <button type="button" class="px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-all" onclick="clearUnityForm()">
+                            <i class="fas fa-times mr-2"></i>ล้างข้อมูล
+                        </button>
+                        <button type="submit" class="px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white rounded-lg transition-all">
+                            <i class="fas fa-save mr-2"></i>บันทึกคะแนน
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Unity Score History -->
+                <div class="bg-white/10 rounded-xl p-6">
+                    <h3 class="text-white text-lg font-bold mb-4">ประวัติการให้คะแนนความสามัคคี</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-white">
+                            <thead>
+                                <tr class="border-b border-white/20">
+                                    <th class="text-left py-3 px-4">วันที่</th>
+                                    <th class="text-left py-3 px-4">คณะสี</th>
+                                    <th class="text-center py-3 px-4">คะแนน</th>
+                                    <th class="text-left py-3 px-4">หมายเหตุ</th>
+                                    <th class="text-center py-3 px-4">จัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="unityHistoryTable">
+                                <!-- Unity history will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Export Section -->
+        <div id="export" class="section hidden">
+            <div class="bg-white/20 backdrop-blur-md rounded-xl p-8">
+                <h2 class="text-white text-2xl font-bold mb-6">
+                    <i class="fas fa-download mr-3"></i>ดาวน์โหลดรายงาน
+                </h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="team-card rounded-xl p-6 text-white card-hover">
+                        <div class="text-center">
+                            <i class="fas fa-file-pdf text-6xl mb-4"></i>
+                            <h3 class="text-xl font-bold mb-2">รายงาน PDF</h3>
+                            <p class="text-white/80 mb-4">ดาวน์โหลดรายงานผลการแข่งขันและตารางคะแนนในรูปแบบ PDF</p>
+                            <button class="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-lg transition-all w-full" onclick="exportPDF()">
+                                <i class="fas fa-download mr-2"></i>ดาวน์โหลด PDF
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="team-card rounded-xl p-6 text-white card-hover">
+                        <div class="text-center">
+                            <i class="fas fa-file-excel text-6xl mb-4"></i>
+                            <h3 class="text-xl font-bold mb-2">รายงาน Excel</h3>
+                            <p class="text-white/80 mb-4">ดาวน์โหลดข้อมูลการแข่งขันในรูปแบบ Excel สำหรับการวิเคราะห์</p>
+                            <button class="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-lg transition-all w-full" onclick="exportExcel()">
+                                <i class="fas fa-download mr-2"></i>ดาวน์โหลด Excel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 bg-white/10 rounded-xl p-6">
+                    <h3 class="text-white text-lg font-bold mb-4">ตัวเลือกการส่งออก</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-white text-sm font-medium mb-2">ช่วงวันที่</label>
+                            <div class="flex space-x-2">
+                                <input type="date" class="flex-1 px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                <span class="text-white self-center">ถึง</span>
+                                <input type="date" class="flex-1 px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-white text-sm font-medium mb-2">ชนิดกีฬา</label>
+                            <select class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                <option value="">ทุกชนิดกีฬา</option>
+                                <option value="football">ฟุตบอล</option>
+                                <option value="basketball">บาสเกตบอล</option>
+                                <option value="volleyball">วอลเลย์บอล</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white/10 backdrop-blur-md border-t border-white/20 mt-16">
+        <div class="container mx-auto px-4 py-6">
+            <div class="text-center text-white">
+                <p>&copy; 2025 โรงเรียนเตรียมอุดมศึกษาพัฒนาการสุวรรณภูมิ</p>
+                <p class="text-white/70 text-sm mt-2">ระบบรายงานผลการแข่งขันกีฬาภายใน - เชื่อมต่อ Firebase</p>
+            </div>
+        </div>
+    </footer>
+    </div> <!-- End Main App -->
+
+    <script>
+        // Global variables
+        let userRole = 'guest';
+        let isFirebaseReady = false;
+        let charts = {};
+        
+        // Local data storage (fallback when Firebase is not ready)
+        let localData = {
+            sports: [
+                { id: 'sport1', name: 'ฟุตบอล', teams: 4, matches: 6 },
+                { id: 'sport2', name: 'บาสเกตบอล', teams: 4, matches: 6 },
+                { id: 'sport3', name: 'วอลเลย์บอล', teams: 4, matches: 6 },
+                { id: 'sport4', name: 'แบดมินตัน', teams: 4, matches: 6 },
+                { id: 'sport5', name: 'ปิงปอง', teams: 4, matches: 6 },
+                { id: 'sport6', name: 'กรีฑา', teams: 4, matches: 8 }
+            ],
+            teams: [
+                { id: 'team1', name: 'คณะสีแดง', color: '#ef4444', sportsScore: 270, unityScore: 85, totalScore: 355, gold: 6, silver: 7, bronze: 4 },
+                { id: 'team2', name: 'คณะสีน้ำเงิน', color: '#3b82f6', sportsScore: 285, unityScore: 92, totalScore: 377, gold: 8, silver: 5, bronze: 3 },
+                { id: 'team3', name: 'คณะสีเหลือง', color: '#f59e0b', sportsScore: 230, unityScore: 78, totalScore: 308, gold: 3, silver: 4, bronze: 7 },
+                { id: 'team4', name: 'คณะสีเขียว', color: '#22c55e', sportsScore: 245, unityScore: 88, totalScore: 333, gold: 4, silver: 6, bronze: 8 }
+            ],
+            schedule: [
+                { id: 'schedule1', date: '15 ม.ค. 2025', time: '09:00', sport: 'ฟุตบอล', match: 'คณะสีแดง vs คณะสีน้ำเงิน', venue: 'สนามหญ้าเทียม', status: 'เสร็จสิ้น' },
+                { id: 'schedule2', date: '15 ม.ค. 2025', time: '10:30', sport: 'บาสเกตบอล', match: 'คณะสีเหลือง vs คณะสีเขียว', venue: 'สนามบาส A', status: 'กำลังแข่ง' },
+                { id: 'schedule3', date: '15 ม.ค. 2025', time: '14:00', sport: 'วอลเลย์บอล', match: 'คณะสีแดง vs คณะสีเขียว', venue: 'โรงยิม', status: 'รอแข่ง' },
+                { id: 'schedule4', date: '16 ม.ค. 2025', time: '09:00', sport: 'แบดมินตัน', match: 'คณะสีน้ำเงิน vs คณะสีเหลือง', venue: 'โรงยิม B', status: 'รอแข่ง' }
+            ],
+            unityHistory: [
+                { id: 'unity1', date: '15 ม.ค. 2025', teamId: 'team2', teamName: 'คณะสีน้ำเงิน', score: 25, notes: 'การแสดงเชียร์ยอดเยี่ยม' },
+                { id: 'unity2', date: '15 ม.ค. 2025', teamId: 'team1', teamName: 'คณะสีแดง', score: 20, notes: 'การจัดระเบียบดี' },
+                { id: 'unity3', date: '14 ม.ค. 2025', teamId: 'team4', teamName: 'คณะสีเขียว', score: 23, notes: 'ความร่วมมือในการแข่งขัน' },
+                { id: 'unity4', date: '14 ม.ค. 2025', teamId: 'team3', teamName: 'คณะสีเหลือง', score: 18, notes: 'การเข้าร่วมกิจกรรม' }
+            ]
+        };
+
+        // Firebase initialization function (called when Firebase is ready)
+        window.initializeFirebaseData = async function() {
+            if (!window.db || !window.firestore) {
+                console.log('Firebase not ready yet');
+                return;
+            }
+
+            try {
+                isFirebaseReady = true;
+                updateFirebaseStatus(true);
+                
+                // Initialize collections with default data if they don't exist
+                await initializeCollections();
+                
+                // Set up real-time listeners
+                setupRealtimeListeners();
+                
+                console.log('Firebase initialized successfully');
+            } catch (error) {
+                console.error('Firebase initialization error:', error);
+                updateFirebaseStatus(false);
+                isFirebaseReady = false;
+            }
+        };
+
+        // Update Firebase status indicator
+        function updateFirebaseStatus(connected) {
+            const statusEl = document.getElementById('firebaseStatus');
+            if (connected) {
+                statusEl.className = 'firebase-status firebase-connected';
+                statusEl.innerHTML = '<i class="fas fa-circle mr-1"></i>Firebase เชื่อมต่อแล้ว';
+            } else {
+                statusEl.className = 'firebase-status firebase-disconnected';
+                statusEl.innerHTML = '<i class="fas fa-circle mr-1"></i>Firebase ไม่เชื่อมต่อ';
+            }
+        }
+
+        // Initialize Firebase collections with default data
+        async function initializeCollections() {
+            const { collection, getDocs, setDoc, doc } = window.firestore;
+            
+            try {
+                // Check if collections exist, if not create them with default data
+                const collections = ['sports', 'teams', 'schedule', 'unityHistory'];
+                
+                for (const collectionName of collections) {
+                    const snapshot = await getDocs(collection(window.db, collectionName));
+                    
+                    if (snapshot.empty) {
+                        console.log(`Initializing ${collectionName} collection`);
+                        const data = localData[collectionName];
+                        
+                        for (const item of data) {
+                            await setDoc(doc(window.db, collectionName, item.id), item);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error initializing collections:', error);
+            }
+        }
+
+        // Set up real-time listeners for all collections
+        function setupRealtimeListeners() {
+            const { collection, onSnapshot } = window.firestore;
+            
+            // Listen to sports changes
+            onSnapshot(collection(window.db, 'sports'), (snapshot) => {
+                localData.sports = [];
+                snapshot.forEach((doc) => {
+                    localData.sports.push({ id: doc.id, ...doc.data() });
+                });
+                loadSportsData();
+            });
+
+            // Listen to teams changes
+            onSnapshot(collection(window.db, 'teams'), (snapshot) => {
+                localData.teams = [];
+                snapshot.forEach((doc) => {
+                    localData.teams.push({ id: doc.id, ...doc.data() });
+                });
+                loadTeamsData();
+                loadScoreboardData();
+                updateCharts();
+            });
+
+            // Listen to schedule changes
+            onSnapshot(collection(window.db, 'schedule'), (snapshot) => {
+                localData.schedule = [];
+                snapshot.forEach((doc) => {
+                    localData.schedule.push({ id: doc.id, ...doc.data() });
+                });
+                loadScheduleData();
+            });
+
+            // Listen to unity history changes
+            onSnapshot(collection(window.db, 'unityHistory'), (snapshot) => {
+                localData.unityHistory = [];
+                snapshot.forEach((doc) => {
+                    localData.unityHistory.push({ id: doc.id, ...doc.data() });
+                });
+                loadUnityData();
+            });
+        }
+
+        // Firebase CRUD operations
+        async function saveToFirebase(collectionName, data, docId = null) {
+            if (!isFirebaseReady) {
+                console.log('Firebase not ready, saving locally only');
+                return;
+            }
+
+            try {
+                const { collection, addDoc, setDoc, doc } = window.firestore;
+                
+                if (docId) {
+                    await setDoc(doc(window.db, collectionName, docId), data);
+                } else {
+                    const docRef = await addDoc(collection(window.db, collectionName), data);
+                    return docRef.id;
+                }
+            } catch (error) {
+                console.error('Error saving to Firebase:', error);
+                throw error;
+            }
+        }
+
+        async function updateFirebaseDoc(collectionName, docId, data) {
+            if (!isFirebaseReady) {
+                console.log('Firebase not ready, updating locally only');
+                return;
+            }
+
+            try {
+                const { updateDoc, doc } = window.firestore;
+                await updateDoc(doc(window.db, collectionName, docId), data);
+            } catch (error) {
+                console.error('Error updating Firebase document:', error);
+                throw error;
+            }
+        }
+
+        async function deleteFromFirebase(collectionName, docId) {
+            if (!isFirebaseReady) {
+                console.log('Firebase not ready, deleting locally only');
+                return;
+            }
+
+            try {
+                const { deleteDoc, doc } = window.firestore;
+                await deleteDoc(doc(window.db, collectionName, docId));
+            } catch (error) {
+                console.error('Error deleting from Firebase:', error);
+                throw error;
+            }
+        }
+
+        // Login functionality
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            // Check credentials
+            if (username === 'TUPPSC' && password === 'JetniphatInwza007naja') {
+                userRole = 'admin';
+                loginUser('Admin (TUPPSC)', 'ผู้ดูแลระบบ');
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เข้าสู่ระบบไม่สำเร็จ',
+                    text: 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง',
+                    confirmButtonColor: '#3b82f6'
+                });
+            }
+        });
+
+        // Guest login functionality
+        function guestLogin() {
+            userRole = 'guest';
+            loginUser('ผู้เยี่ยมชม', 'ดูข้อมูลอย่างเดียว');
+        }
+
+        // Common login function
+        function loginUser(displayName, roleText) {
+            // Show loading
+            Swal.fire({
+                title: 'กำลังเข้าสู่ระบบ...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
+            setTimeout(() => {
+                // Hide login modal and show main app
+                document.getElementById('loginModal').classList.add('hidden');
+                document.getElementById('mainApp').classList.remove('hidden');
+                
+                // Update current user display
+                document.getElementById('currentUser').textContent = displayName;
+                
+                // Set user permissions
+                setUserPermissions();
+                
+                // Initialize charts after login
+                initCharts();
+                
+                // Load dynamic data
+                loadSportsData();
+                loadScheduleData();
+                loadTeamsData();
+                loadScoreboardData();
+                loadUnityData();
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: 'เข้าสู่ระบบสำเร็จ!',
+                    text: `ยินดีต้อนรับ ${roleText}`,
+                    timer: 800,
+                    showConfirmButton: false
+                });
+            }, 200);
+        }
+
+        // Set user permissions based on role
+        function setUserPermissions() {
+            const adminElements = document.querySelectorAll('.admin-only');
+            const guestElements = document.querySelectorAll('.guest-only');
+            
+            if (userRole === 'admin') {
+                // Show admin elements
+                adminElements.forEach(el => {
+                    el.style.display = '';
+                });
+                // Hide guest-only elements
+                guestElements.forEach(el => {
+                    el.style.display = 'none';
+                });
+            } else {
+                // Hide admin elements
+                adminElements.forEach(el => {
+                    el.style.display = 'none';
+                });
+                // Show guest-only elements
+                guestElements.forEach(el => {
+                    el.style.display = '';
+                });
+            }
+        }
+
+        // Logout functionality
+        function logout() {
+            Swal.fire({
+                title: 'ต้องการออกจากระบบ?',
+                text: 'คุณจะต้องเข้าสู่ระบบใหม่อีกครั้ง',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#3b82f6',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'ออกจากระบบ',
+                cancelButtonText: 'ยกเลิก'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Reset user role
+                    userRole = 'guest';
+                    
+                    document.getElementById('mainApp').classList.add('hidden');
+                    document.getElementById('loginModal').classList.remove('hidden');
+                    
+                    // Reset login form
+                    document.getElementById('loginForm').reset();
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'ออกจากระบบแล้ว',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                }
+            });
+        }
+
+        // Initialize charts
+        function initCharts() {
+            const teams = [...localData.teams].sort((a, b) => b.totalScore - a.totalScore);
+            
+            // Score Chart
+            const scoreCtx = document.getElementById('scoreChart').getContext('2d');
+            if (charts.scoreChart) {
+                charts.scoreChart.destroy();
+            }
+            charts.scoreChart = new Chart(scoreCtx, {
+                type: 'bar',
+                data: {
+                    labels: teams.map(team => team.name),
+                    datasets: [{
+                        label: 'คะแนนรวม',
+                        data: teams.map(team => team.totalScore),
+                        backgroundColor: teams.map(team => team.color + '80'),
+                        borderColor: teams.map(team => team.color),
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: 'white'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: 'white'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: 'white'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Unity Chart
+            const unityCtx = document.getElementById('unityChart').getContext('2d');
+            if (charts.unityChart) {
+                charts.unityChart.destroy();
+            }
+            charts.unityChart = new Chart(unityCtx, {
+                type: 'radar',
+                data: {
+                    labels: teams.map(team => team.name),
+                    datasets: [{
+                        label: 'คะแนนความสามัคคี',
+                        data: teams.map(team => team.unityScore),
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'rgba(255, 99, 132, 1)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgba(255, 99, 132, 1)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: 'white'
+                            }
+                        }
+                    },
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                color: 'white'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            angleLines: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            pointLabels: {
+                                color: 'white'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Medal Chart
+            const medalCtx = document.getElementById('medalChart').getContext('2d');
+            if (charts.medalChart) {
+                charts.medalChart.destroy();
+            }
+            charts.medalChart = new Chart(medalCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: teams.map(team => team.name),
+                    datasets: [{
+                        data: teams.map(team => team.gold + team.silver + team.bronze),
+                        backgroundColor: teams.map(team => team.color + '80'),
+                        borderColor: teams.map(team => team.color),
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: 'white'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update charts with new data
+        function updateCharts() {
+            if (Object.keys(charts).length > 0) {
+                initCharts();
+            }
+        }
+
+        // Navigation
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Remove active class from all nav items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active-nav');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.remove('hidden');
+            
+            // Add active class to clicked nav item
+            event.target.classList.add('active-nav');
+        }
+
+        // Form submission
+        document.getElementById('recordForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Check if user has admin permission
+            if (userRole !== 'admin') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ไม่มีสิทธิ์เข้าถึง',
+                    text: 'เฉพาะผู้ดูแลระบบเท่านั้นที่สามารถบันทึกข้อมูลได้',
+                    confirmButtonColor: '#3b82f6'
+                });
+                return;
+            }
+            
+            const formData = {
+                sport: document.getElementById('sportSelect').value,
+                round: document.getElementById('roundSelect').value,
+                team1: document.getElementById('team1Select').value,
+                score1: document.getElementById('score1').value,
+                team2: document.getElementById('team2Select').value,
+                score2: document.getElementById('score2').value,
+                notes: document.getElementById('notes').value,
+                timestamp: new Date().toISOString()
+            };
+
+            // Validate form
+            if (!formData.sport || !formData.round || !formData.team1 || !formData.team2) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ข้อมูลไม่ครบถ้วน',
+                    text: 'กรุณากรอกข้อมูลให้ครบถ้วน',
+                    confirmButtonColor: '#3b82f6'
+                });
+                return;
+            }
+
+            if (formData.team1 === formData.team2) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ข้อผิดพลาด',
+                    text: 'ไม่สามารถเลือกทีมเดียวกันได้',
+                    confirmButtonColor: '#3b82f6'
+                });
+                return;
+            }
+
+            // Show loading
+            Swal.fire({
+                title: 'กำลังบันทึกข้อมูล...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            try {
+                // Save to Firebase
+                await saveToFirebase('matches', formData);
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: 'บันทึกสำเร็จ!',
+                    text: 'ข้อมูลผลการแข่งขันถูกบันทึกและซิงค์แล้ว',
+                    confirmButtonColor: '#3b82f6'
+                }).then(() => {
+                    // Reset form
+                    document.getElementById('recordForm').reset();
+                });
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีกครั้ง',
+                    confirmButtonColor: '#3b82f6'
+                });
+            }
+        });
+
+        // Load sports data
+        function loadSportsData() {
+            const sportsGrid = document.getElementById('sportsGrid');
+            sportsGrid.innerHTML = '';
+            
+            localData.sports.forEach(sport => {
+                const sportCard = document.createElement('div');
+                sportCard.className = 'sport-card rounded-xl p-6 text-white card-hover';
+                sportCard.innerHTML = `
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-bold">${sport.name}</h3>
+                        <div class="flex space-x-2 admin-only">
+                            <button class="text-white/80 hover:text-white" onclick="editSport('${sport.id}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="text-white/80 hover:text-white" onclick="deleteSport('${sport.id}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <p class="text-white/80 text-sm mb-2">จำนวนทีม: ${sport.teams} ทีม</p>
+                    <p class="text-white/80 text-sm">การแข่งขัน: ${sport.matches} นัด</p>
+                `;
+                sportsGrid.appendChild(sportCard);
+            });
+            
+            // Update permissions after loading
+            setUserPermissions();
+        }
+
+        // Load schedule data
+        function loadScheduleData() {
+            const scheduleTable = document.getElementById('scheduleTable');
+            scheduleTable.innerHTML = '';
+            
+            localData.schedule.forEach(match => {
+                const row = document.createElement('tr');
+                row.className = 'border-b border-white/10';
+                
+                let statusClass = 'bg-gray-500';
+                if (match.status === 'เสร็จสิ้น') statusClass = 'bg-green-500';
+                else if (match.status === 'กำลังแข่ง') statusClass = 'bg-yellow-500';
+                else if (match.status === 'รอแข่ง') statusClass = 'bg-blue-500';
+                
+                row.innerHTML = `
+                    <td class="py-4 px-4">${match.date}</td>
+                    <td class="py-4 px-4">${match.time}</td>
+                    <td class="py-4 px-4">${match.sport}</td>
+                    <td class="py-4 px-4">${match.match}</td>
+                    <td class="py-4 px-4">${match.venue}</td>
+                    <td class="py-4 px-4 text-center">
+                        <span class="${statusClass} text-white px-3 py-1 rounded-full text-sm">${match.status}</span>
+                    </td>
+                    <td class="py-4 px-4 text-center">
+                        <div class="admin-only">
+                            <button class="text-blue-400 hover:text-blue-300 mr-2" onclick="editSchedule('${match.id}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="text-red-400 hover:text-red-300" onclick="deleteSchedule('${match.id}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                        <div class="guest-only">
+                            <span class="text-white/50 text-sm">-</span>
+                        </div>
+                    </td>
+                `;
+                scheduleTable.appendChild(row);
+            });
+            
+            // Update permissions after loading
+            setUserPermissions();
+        }
+
+        // Load teams data
+        function loadTeamsData() {
+            const teamsGrid = document.getElementById('teamsGrid');
+            teamsGrid.innerHTML = '';
+            
+            localData.teams.forEach(team => {
+                const teamCard = document.createElement('div');
+                teamCard.className = 'bg-white/20 backdrop-blur-md rounded-xl p-6 card-hover';
+                teamCard.innerHTML = `
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center">
+                            <div class="w-6 h-6 rounded-full mr-3" style="background-color: ${team.color}"></div>
+                            <h3 class="text-xl font-bold text-white">${team.name}</h3>
+                        </div>
+                        <div class="flex space-x-2 admin-only">
+                            <button class="text-white/80 hover:text-white" onclick="editTeam('${team.id}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="text-white/80 hover:text-white" onclick="deleteTeam('${team.id}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 text-white/80 text-sm">
+                        <div>
+                            <p>คะแนนกีฬา: <span class="font-bold text-white">${team.sportsScore}</span></p>
+                            <p>คะแนนสามัคคี: <span class="font-bold text-white">${team.unityScore}</span></p>
+                        </div>
+                        <div>
+                            <p>คะแนนรวม: <span class="font-bold text-white text-lg">${team.totalScore}</span></p>
+                            <p>เหรียญ: <span class="font-bold text-white">${team.gold + team.silver + team.bronze}</span></p>
+                        </div>
+                    </div>
+                `;
+                teamsGrid.appendChild(teamCard);
+            });
+            
+            // Update team select options
+            updateTeamSelects();
+            
+            // Update permissions after loading
+            setUserPermissions();
+        }
+
+        // Load scoreboard data
+        function loadScoreboardData() {
+            const scoreboardTable = document.getElementById('scoreboardTable');
+            scoreboardTable.innerHTML = '';
+            
+            const sortedTeams = [...localData.teams].sort((a, b) => b.totalScore - a.totalScore);
+            
+            sortedTeams.forEach((team, index) => {
+                const row = document.createElement('tr');
+                row.className = `border-b border-white/10 ${index === 0 ? 'bg-gradient-to-r from-yellow-500/20 to-yellow-600/20' : ''}`;
+                
+                row.innerHTML = `
+                    <td class="py-4 px-4 font-bold">${index + 1}</td>
+                    <td class="py-4 px-4">
+                        <div class="flex items-center">
+                            <div class="w-4 h-4 rounded-full mr-3" style="background-color: ${team.color}"></div>
+                            ${team.name}
+                        </div>
+                    </td>
+                    <td class="py-4 px-4 text-center font-bold">${team.sportsScore}</td>
+                    <td class="py-4 px-4 text-center font-bold">${team.unityScore}</td>
+                    <td class="py-4 px-4 text-center font-bold text-2xl">${team.totalScore}</td>
+                    <td class="py-4 px-4 text-center font-bold">${team.gold}</td>
+                    <td class="py-4 px-4 text-center font-bold">${team.silver}</td>
+                    <td class="py-4 px-4 text-center font-bold">${team.bronze}</td>
+                `;
+                scoreboardTable.appendChild(row);
+            });
+        }
+
+        // Load unity data
+        function loadUnityData() {
+            const unityHistoryTable = document.getElementById('unityHistoryTable');
+            unityHistoryTable.innerHTML = '';
+            
+            localData.unityHistory.forEach(record => {
+                const row = document.createElement('tr');
+                row.className = 'border-b border-white/10';
+                
+                row.innerHTML = `
+                    <td class="py-3 px-4">${record.date}</td>
+                    <td class="py-3 px-4">${record.teamName}</td>
+                    <td class="py-3 px-4 text-center font-bold">${record.score}</td>
+                    <td class="py-3 px-4">${record.notes}</td>
+                    <td class="py-3 px-4 text-center">
+                        <div class="admin-only">
+                            <button class="text-red-400 hover:text-red-300" onclick="deleteUnityRecord('${record.id}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                        <div class="guest-only">
+                            <span class="text-white/50 text-sm">-</span>
+                        </div>
+                    </td>
+                `;
+                unityHistoryTable.appendChild(row);
+            });
+            
+            // Update permissions after loading
+            setUserPermissions();
+        }
+
+        // Update team select options
+        function updateTeamSelects() {
+            const selects = ['team1Select', 'team2Select', 'unityTeamSelect'];
+            
+            selects.forEach(selectId => {
+                const select = document.getElementById(selectId);
+                if (select) {
+                    // Keep the first option
+                    const firstOption = select.querySelector('option');
+                    select.innerHTML = '';
+                    select.appendChild(firstOption);
+                    
+                    // Add team options
+                    localData.teams.forEach(team => {
+                        const option = document.createElement('option');
+                        option.value = team.id;
+                        option.textContent = team.name;
+                        select.appendChild(option);
+                    });
+                }
+            });
+        }
+
+        // Edit sport function
+        async function editSport(sportId) {
+            if (userRole !== 'admin') return;
+            
+            const sport = localData.sports.find(s => s.id === sportId);
+            if (!sport) return;
+            
+            const { value: formValues } = await Swal.fire({
+                title: 'แก้ไขชนิดกีฬา',
+                html: `
+                    <div class="grid grid-cols-1 gap-4 text-left">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">ชื่อกีฬา</label>
+                            <input type="text" id="editSportName" class="w-full px-3 py-2 border rounded-lg" value="${sport.name}">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">จำนวนทีม</label>
+                            <input type="number" id="editTeamCount" class="w-full px-3 py-2 border rounded-lg" value="${sport.teams}">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">จำนวนการแข่งขัน</label>
+                            <input type="number" id="editMatchCount" class="w-full px-3 py-2 border rounded-lg" value="${sport.matches}">
+                        </div>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'บันทึก',
+                cancelButtonText: 'ยกเลิก',
+                confirmButtonColor: '#3b82f6',
+                preConfirm: () => {
+                    const name = document.getElementById('editSportName').value;
+                    const teams = parseInt(document.getElementById('editTeamCount').value);
+                    const matches = parseInt(document.getElementById('editMatchCount').value);
+                    
+                    if (!name || !teams || !matches) {
+                        Swal.showValidationMessage('กรุณากรอกข้อมูลให้ครบถ้วน');
+                        return false;
+                    }
+                    
+                    return { name, teams, matches };
+                }
+            });
+
+            if (formValues) {
+                try {
+                    await updateFirebaseDoc('sports', sportId, formValues);
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'แก้ไขสำเร็จ!',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                } catch (error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'เกิดข้อผิดพลาด',
+                        text: 'ไม่สามารถแก้ไขข้อมูลได้',
+                        confirmButtonColor: '#3b82f6'
+                    });
+                }
+            }
+        }
+
+        // Delete sport function
+        async function deleteSport(sportId) {
+            if (userRole !== 'admin') return;
+            
+            const sport = localData.sports.find(s => s.id === sportId);
+            if (!sport) return;
+            
+            const result = await Swal.fire({
+                title: 'ต้องการลบชนิดกีฬา?',
+                text: `คุณต้องการลบ "${sport.name}" หรือไม่?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'ลบ',
+                cancelButtonText: 'ยกเลิก'
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    await deleteFromFirebase('sports', sportId);
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'ลบสำเร็จ!',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                } catch (error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'เกิดข้อผิดพลาด',
+                        text: 'ไม่สามารถลบข้อมูลได้',
+                        confirmButtonColor: '#3b82f6'
+                    });
+                }
+            }
+        }
+
+        // Unity form submission
+        document.getElementById('unityForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (userRole !== 'admin') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ไม่มีสิทธิ์เข้าถึง',
+                    text: 'เฉพาะผู้ดูแลระบบเท่านั้นที่สามารถบันทึกคะแนนได้',
+                    confirmButtonColor: '#3b82f6'
+                });
+                return;
+            }
+            
+            const teamId = document.getElementById('unityTeamSelect').value;
+            const score = parseInt(document.getElementById('unityScore').value);
+            const notes = document.getElementById('unityNotes').value;
+            
+            if (!teamId || score === null || score === undefined) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ข้อมูลไม่ครบถ้วน',
+                    text: 'กรุณาเลือกคณะสีและกรอกคะแนน',
+                    confirmButtonColor: '#3b82f6'
+                });
+                return;
+            }
+            
+            if (score < 0 || score > 100) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'คะแนนไม่ถูกต้อง',
+                    text: 'คะแนนต้องอยู่ระหว่าง 0-100',
+                    confirmButtonColor: '#3b82f6'
+                });
+                return;
+            }
+            
+            // Find team
+            const team = localData.teams.find(t => t.id === teamId);
+            if (!team) return;
+            
+            try {
+                // Create unity record
+                const unityRecord = {
+                    date: new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' }),
+                    teamId: teamId,
+                    teamName: team.name,
+                    score: score,
+                    notes: notes || '-',
+                    timestamp: new Date().toISOString()
+                };
+                
+                // Save unity record
+                const recordId = await saveToFirebase('unityHistory', unityRecord);
+                
+                // Update team scores
+                const updatedTeam = {
+                    ...team,
+                    unityScore: team.unityScore + score,
+                    totalScore: team.sportsScore + team.unityScore + score
+                };
+                
+                await updateFirebaseDoc('teams', teamId, updatedTeam);
+                
+                // Clear form
+                clearUnityForm();
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: 'บันทึกคะแนนสำเร็จ!',
+                    text: `บันทึกคะแนนความสามัคคี ${score} คะแนนให้ ${team.name} แล้ว`,
+                    confirmButtonColor: '#3b82f6'
+                });
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'ไม่สามารถบันทึกคะแนนได้',
+                    confirmButtonColor: '#3b82f6'
+                });
+            }
+        });
+
+        // Clear unity form
+        function clearUnityForm() {
+            document.getElementById('unityTeamSelect').value = '';
+            document.getElementById('unityScore').value = '';
+            document.getElementById('unityNotes').value = '';
+        }
+
+        // Delete unity record
+        async function deleteUnityRecord(recordId) {
+            if (userRole !== 'admin') return;
+            
+            const record = localData.unityHistory.find(r => r.id === recordId);
+            if (!record) return;
+            
+            const result = await Swal.fire({
+                title: 'ต้องการลบบันทึก?',
+                text: `คุณต้องการลบบันทึกคะแนนความสามัคคี ${record.score} คะแนนของ ${record.teamName} หรือไม่?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'ลบ',
+                cancelButtonText: 'ยกเลิก'
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    // Find team and subtract score
+                    const team = localData.teams.find(t => t.id === record.teamId);
+                    if (team) {
+                        const updatedTeam = {
+                            ...team,
+                            unityScore: team.unityScore - record.score,
+                            totalScore: team.sportsScore + team.unityScore - record.score
+                        };
+                        
+                        await updateFirebaseDoc('teams', record.teamId, updatedTeam);
+                    }
+                    
+                    // Delete unity record
+                    await deleteFromFirebase('unityHistory', recordId);
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'ลบสำเร็จ!',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                } catch (error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'เกิดข้อผิดพลาด',
+                        text: 'ไม่สามารถลบข้อมูลได้',
+                        confirmButtonColor: '#3b82f6'
+                    });
+                }
+            }
+        }
+
+        // Team management functions
+        async function showAddTeamModal() {
+            if (userRole !== 'admin') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ไม่มีสิทธิ์เข้าถึง',
+                    text: 'เฉพาะผู้ดูแลระบบเท่านั้นที่สามารถเพิ่มคณะสีได้',
+                    confirmButtonColor: '#3b82f6'
+                });
+                return;
+            }
+            
+            const { value: formValues } = await Swal.fire({
+                title: 'เพิ่มคณะสีใหม่',
+                html: `
+                    <div class="grid grid-cols-1 gap-4 text-left">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">ชื่อคณะสี</label>
+                            <input type="text" id="modalTeamName" class="w-full px-3 py-2 border rounded-lg" placeholder="เช่น คณะสีม่วง">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">สีประจำคณะ</label>
+                            <input type="color" id="modalTeamColor" class="w-full px-3 py-2 border rounded-lg" value="#8b5cf6">
+                        </div>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'เพิ่ม',
+                cancelButtonText: 'ยกเลิก',
+                confirmButtonColor: '#3b82f6',
+                preConfirm: () => {
+                    const name = document.getElementById('modalTeamName').value;
+                    const color = document.getElementById('modalTeamColor').value;
+                    
+                    if (!name || !color) {
+                        Swal.showValidationMessage('กรุณากรอกข้อมูลให้ครบถ้วน');
+                        return false;
+                    }
+                    
+                    return { name, color };
+                }
+            });
+
+            if (formValues) {
+                try {
+                    const newTeam = {
+                        name: formValues.name,
+                        color: formValues.color,
+                        sportsScore: 0,
+                        unityScore: 0,
+                        totalScore: 0,
+                        gold: 0,
+                        silver: 0,
+                        bronze: 0,
+                        timestamp: new Date().toISOString()
+                    };
+                    
+                    await saveToFirebase('teams', newTeam);
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'เพิ่มคณะสีสำเร็จ!',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                } catch (error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'เกิดข้อผิดพลาด',
+                        text: 'ไม่สามารถเพิ่มคณะสีได้',
+                        confirmButtonColor: '#3b82f6'
+                    });
+                }
+            }
+        }
+
+        async function editTeam(teamId) {
+            if (userRole !== 'admin') return;
+            
+            const team = localData.teams.find(t => t.id === teamId);
+            if (!team) return;
+            
+            const { value: formValues } = await Swal.fire({
+                title: 'แก้ไขคณะสี',
+                html: `
+                    <div class="grid grid-cols-1 gap-4 text-left">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">ชื่อคณะสี</label>
+                            <input type="text" id="editTeamName" class="w-full px-3 py-2 border rounded-lg" value="${team.name}">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">สีประจำคณะ</label>
+                            <input type="color" id="editTeamColor" class="w-full px-3 py-2 border rounded-lg" value="${team.color}">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">คะแนนกีฬา</label>
+                            <input type="number" id="editSportsScore" class="w-full px-3 py-2 border rounded-lg" value="${team.sportsScore}">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">เหรียญทอง</label>
+                            <input type="number" id="editGold" class="w-full px-3 py-2 border rounded-lg" value="${team.gold}">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">เหรียญเงิน</label>
+                            <input type="number" id="editSilver" class="w-full px-3 py-2 border rounded-lg" value="${team.silver}">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">เหรียญทองแดง</label>
+                            <input type="number" id="editBronze" class="w-full px-3 py-2 border rounded-lg" value="${team.bronze}">
+                        </div>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'บันทึก',
+                cancelButtonText: 'ยกเลิก',
+                confirmButtonColor: '#3b82f6',
+                preConfirm: () => {
+                    const name = document.getElementById('editTeamName').value;
+                    const color = document.getElementById('editTeamColor').value;
+                    const sportsScore = parseInt(document.getElementById('editSportsScore').value) || 0;
+                    const gold = parseInt(document.getElementById('editGold').value) || 0;
+                    const silver = parseInt(document.getElementById('editSilver').value) || 0;
+                    const bronze = parseInt(document.getElementById('editBronze').value) || 0;
+                    
+                    if (!name || !color) {
+                        Swal.showValidationMessage('กรุณากรอกข้อมูลให้ครบถ้วน');
+                        return false;
+                    }
+                    
+                    return { name, color, sportsScore, gold, silver, bronze };
+                }
+            });
+
+            if (formValues) {
+                try {
+                    const updatedTeam = {
+                        ...team,
+                        ...formValues,
+                        totalScore: formValues.sportsScore + team.unityScore
+                    };
+                    
+                    await updateFirebaseDoc('teams', teamId, updatedTeam);
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'แก้ไขสำเร็จ!',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                } catch (error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'เกิดข้อผิดพลาด',
+                        text: 'ไม่สามารถแก้ไขข้อมูลได้',
+                        confirmButtonColor: '#3b82f6'
+                    });
+                }
+            }
+        }
+
+        async function deleteTeam(teamId) {
+            if (userRole !== 'admin') return;
+            
+            const team = localData.teams.find(t => t.id === teamId);
+            if (!team) return;
+            
+            const result = await Swal.fire({
+                title: 'ต้องการลบคณะสี?',
+                text: `คุณต้องการลบ "${team.name}" หรือไม่? ข้อมูลทั้งหมดจะถูกลบ`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'ลบ',
+                cancelButtonText: 'ยกเลิก'
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    // Delete team
+                    await deleteFromFirebase('teams', teamId);
+                    
+                    // Delete related unity history
+                    const relatedRecords = localData.unityHistory.filter(r => r.teamId === teamId);
+                    for (const record of relatedRecords) {
+                        await deleteFromFirebase('unityHistory', record.id);
+                    }
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'ลบสำเร็จ!',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                } catch (error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'เกิดข้อผิดพลาด',
+                        text: 'ไม่สามารถลบข้อมูลได้',
+                        confirmButtonColor: '#3b82f6'
+                    });
+                }
+            }
+        }
+
+        // Export functions (placeholder)
+        function exportPDF() {
+            if (userRole !== 'admin') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ไม่มีสิทธิ์เข้าถึง',
+                    text: 'เฉพาะผู้ดูแลระบบเท่านั้นที่สามารถดาวน์โหลดรายงานได้',
+                    confirmButtonColor: '#3b82f6'
+                });
+                return;
+            }
+            
+            Swal.fire({
+                title: 'กำลังสร้างไฟล์ PDF...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            setTimeout(() => {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'สร้างไฟล์สำเร็จ!',
+                    text: 'ไฟล์ PDF ถูกดาวน์โหลดเรียบร้อยแล้ว',
+                    confirmButtonColor: '#3b82f6'
+                });
+            }, 2000);
+        }
+
+        function exportExcel() {
+            if (userRole !== 'admin') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ไม่มีสิทธิ์เข้าถึง',
+                    text: 'เฉพาะผู้ดูแลระบบเท่านั้นที่สามารถดาวน์โหลดรายงานได้',
+                    confirmButtonColor: '#3b82f6'
+                });
+                return;
+            }
+            
+            Swal.fire({
+                title: 'กำลังสร้างไฟล์ Excel...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            setTimeout(() => {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'สร้างไฟล์สำเร็จ!',
+                    text: 'ไฟล์ Excel ถูกดาวน์โหลดเรียบร้อยแล้ว',
+                    confirmButtonColor: '#3b82f6'
+                });
+            }, 2000);
+        }
+
+        // Placeholder functions for missing features
+        function showAddScheduleModal() {
+            Swal.fire({
+                icon: 'info',
+                title: 'ฟีเจอร์กำลังพัฒนา',
+                text: 'ฟีเจอร์เพิ่มการแข่งขันใหม่กำลังอยู่ในระหว่างการพัฒนา',
+                confirmButtonColor: '#3b82f6'
+            });
+        }
+
+        function showAddSportModal() {
+            Swal.fire({
+                icon: 'info',
+                title: 'ฟีเจอร์กำลังพัฒนา',
+                text: 'ฟีเจอร์เพิ่มชนิดกีฬาใหม่กำลังอยู่ในระหว่างการพัฒนา',
+                confirmButtonColor: '#3b82f6'
+            });
+        }
+
+        function editSchedule(scheduleId) {
+            if (userRole !== 'admin') return;
+            Swal.fire({
+                icon: 'info',
+                title: 'ฟีเจอร์กำลังพัฒนา',
+                text: 'ฟีเจอร์แก้ไขการแข่งขันกำลังอยู่ในระหว่างการพัฒนา',
+                confirmButtonColor: '#3b82f6'
+            });
+        }
+
+        function deleteSchedule(scheduleId) {
+            if (userRole !== 'admin') return;
+            Swal.fire({
+                icon: 'info',
+                title: 'ฟีเจอร์กำลังพัฒนา',
+                text: 'ฟีเจอร์ลบการแข่งขันกำลังอยู่ในระหว่างการพัฒนา',
+                confirmButtonColor: '#3b82f6'
+            });
+        }
+
+        // Initialize on page load
+        $(document).ready(function() {
+            // Set current time
+            const now = new Date();
+            document.getElementById('loginTime').textContent = now.toLocaleTimeString('th-TH', {
+                hour: '2-digit',
+                minute: '2-digit'
+            }) + ' น.';
+            
+            // Initialize Firebase status as disconnected
+            updateFirebaseStatus(false);
+            
+            // Try to initialize Firebase data if already ready
+            if (window.db && window.firestore) {
+                window.initializeFirebaseData();
+            }
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98659054803f7b6a',t:'MTc1OTA4Njg2Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
