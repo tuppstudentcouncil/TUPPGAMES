@@ -424,11 +424,163 @@
     </main>
 
     <!-- Footer -->
+    <!-- Firebase Setup Instructions Modal -->
+    <div id="firebaseSetupModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-2xl p-8 w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-orange-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-cog text-3xl text-white"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">🔧 การตั้งค่า Firebase</h2>
+                <p class="text-gray-600">คำแนะนำการตั้งค่าเพื่อให้ข้อมูลซิงค์ระหว่างเครื่อง</p>
+            </div>
+            
+            <div class="space-y-6">
+                <!-- Step 1 -->
+                <div class="bg-blue-50 rounded-xl p-6">
+                    <h3 class="text-lg font-bold text-blue-800 mb-3">
+                        <span class="bg-blue-500 text-white rounded-full w-8 h-8 inline-flex items-center justify-center text-sm mr-3">1</span>
+                        ตรวจสอบ Firestore Database
+                    </h3>
+                    <div class="ml-11 space-y-3">
+                        <p class="text-gray-700">เข้าไปที่ <strong>Firebase Console</strong> → เลือกโปรเจค → <strong>Firestore Database</strong></p>
+                        <div class="bg-white p-4 rounded-lg border-l-4 border-blue-500">
+                            <p class="font-medium text-gray-800">✅ ต้องมี Collections เหล่านี้:</p>
+                            <ul class="mt-2 space-y-1 text-sm text-gray-600">
+                                <li>• <code class="bg-gray-100 px-2 py-1 rounded">teams</code> - ข้อมูลคณะสี</li>
+                                <li>• <code class="bg-gray-100 px-2 py-1 rounded">unityHistory</code> - ประวัติคะแนนความสามัคคี</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="bg-green-50 rounded-xl p-6">
+                    <h3 class="text-lg font-bold text-green-800 mb-3">
+                        <span class="bg-green-500 text-white rounded-full w-8 h-8 inline-flex items-center justify-center text-sm mr-3">2</span>
+                        ตั้งค่า Security Rules
+                    </h3>
+                    <div class="ml-11 space-y-3">
+                        <p class="text-gray-700">ไปที่ <strong>Firestore Database</strong> → <strong>Rules</strong> → แก้ไขเป็น:</p>
+                        <div class="bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm overflow-x-auto">
+                            <pre>rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // อนุญาตให้อ่านและเขียนได้ทุกคน (สำหรับ Demo)
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}</pre>
+                        </div>
+                        <div class="bg-yellow-100 p-3 rounded-lg border-l-4 border-yellow-500">
+                            <p class="text-yellow-800 text-sm">⚠️ <strong>หมายเหตุ:</strong> นี่เป็นการตั้งค่าสำหรับ Demo เท่านั้น ในการใช้งานจริงควรตั้งค่า Authentication</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="bg-purple-50 rounded-xl p-6">
+                    <h3 class="text-lg font-bold text-purple-800 mb-3">
+                        <span class="bg-purple-500 text-white rounded-full w-8 h-8 inline-flex items-center justify-center text-sm mr-3">3</span>
+                        ตรวจสอบ Project Settings
+                    </h3>
+                    <div class="ml-11 space-y-3">
+                        <p class="text-gray-700">ไปที่ <strong>Project Settings</strong> → <strong>General</strong> → ตรวจสอบ:</p>
+                        <div class="bg-white p-4 rounded-lg border-l-4 border-purple-500">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                <div>
+                                    <p class="font-medium">Project ID:</p>
+                                    <code class="bg-gray-100 px-2 py-1 rounded">sports-management-system-1ce0e</code>
+                                </div>
+                                <div>
+                                    <p class="font-medium">Region:</p>
+                                    <code class="bg-gray-100 px-2 py-1 rounded">asia-southeast1</code>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="bg-red-50 rounded-xl p-6">
+                    <h3 class="text-lg font-bold text-red-800 mb-3">
+                        <span class="bg-red-500 text-white rounded-full w-8 h-8 inline-flex items-center justify-center text-sm mr-3">4</span>
+                        ทดสอบการเชื่อมต่อ
+                    </h3>
+                    <div class="ml-11 space-y-3">
+                        <p class="text-gray-700">ใช้ปุ่ม <strong>🩺 ตรวจสอบระบบ</strong> ในหน้าเว็บเพื่อทดสอบ:</p>
+                        <div class="bg-white p-4 rounded-lg border-l-4 border-red-500">
+                            <ul class="space-y-2 text-sm text-gray-700">
+                                <li>✅ Firebase Connection: เชื่อมต่อ</li>
+                                <li>✅ Firebase Database: พร้อม</li>
+                                <li>✅ Firestore Functions: พร้อม</li>
+                                <li>✅ Firebase Write Test: สำเร็จ</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Common Issues -->
+                <div class="bg-gray-50 rounded-xl p-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-3">
+                        <i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i>
+                        ปัญหาที่พบบ่อย
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="bg-white p-4 rounded-lg border-l-4 border-yellow-500">
+                            <h4 class="font-medium text-gray-800">🔴 ข้อมูลไม่อัปเดตระหว่างเครื่อง</h4>
+                            <ul class="mt-2 text-sm text-gray-600 space-y-1">
+                                <li>• ตรวจสอบ Security Rules ว่าอนุญาตให้ read/write</li>
+                                <li>• ลองรีเฟรชหน้าเว็บ (F5)</li>
+                                <li>• ตรวจสอบการเชื่อมต่ออินเทอร์เน็ต</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-white p-4 rounded-lg border-l-4 border-red-500">
+                            <h4 class="font-medium text-gray-800">🔴 Firebase ไม่เชื่อมต่อ</h4>
+                            <ul class="mt-2 text-sm text-gray-600 space-y-1">
+                                <li>• ตรวจสอบ API Key และ Project ID</li>
+                                <li>• ตรวจสอบว่า Firestore Database ถูกเปิดใช้งาน</li>
+                                <li>• ลองเปิดหน้าเว็บใน Incognito Mode</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl p-6 text-white">
+                    <h3 class="text-lg font-bold mb-3">
+                        <i class="fas fa-rocket mr-2"></i>
+                        การดำเนินการด่วน
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <button onclick="testFirebaseConnection()" class="bg-white/20 hover:bg-white/30 p-3 rounded-lg transition-all">
+                            <i class="fas fa-wifi mr-2"></i>ทดสอบการเชื่อมต่อ
+                        </button>
+                        <button onclick="initializeDefaultData()" class="bg-white/20 hover:bg-white/30 p-3 rounded-lg transition-all">
+                            <i class="fas fa-database mr-2"></i>สร้างข้อมูลเริ่มต้น
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 text-center">
+                <button onclick="closeFirebaseSetupModal()" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg transition-all">
+                    <i class="fas fa-times mr-2"></i>ปิด
+                </button>
+            </div>
+        </div>
+    </div>
+
     <footer class="bg-white/10 backdrop-blur-md border-t border-white/20 mt-16">
         <div class="container mx-auto px-4 py-6">
             <div class="text-center text-white">
                 <p>&copy; 2025 โรงเรียนเตรียมอุดมศึกษาพัฒนาการสุวรรณภูมิ</p>
                 <p class="text-white/70 text-sm mt-2">ระบบรายงานผลการแข่งขันกีฬาภายใน - เชื่อมต่อ Firebase</p>
+                <button onclick="showFirebaseSetupModal()" class="text-white/60 hover:text-white text-xs mt-2 underline">
+                    🔧 คำแนะนำการตั้งค่า Firebase
+                </button>
             </div>
         </div>
     </footer>
@@ -1670,6 +1822,158 @@
             });
         }
 
+        // Firebase Setup Modal functions
+        function showFirebaseSetupModal() {
+            document.getElementById('firebaseSetupModal').classList.remove('hidden');
+        }
+
+        function closeFirebaseSetupModal() {
+            document.getElementById('firebaseSetupModal').classList.add('hidden');
+        }
+
+        // Test Firebase connection
+        async function testFirebaseConnection() {
+            Swal.fire({
+                title: 'ทดสอบการเชื่อมต่อ Firebase',
+                html: '<div id="connectionTest">🔄 กำลังทดสอบ...</div>',
+                showConfirmButton: false,
+                allowOutsideClick: false
+            });
+
+            const testDiv = document.getElementById('connectionTest');
+            let results = [];
+
+            try {
+                // Test 1: Check Firebase objects
+                results.push(`✅ Firebase SDK: ${window.database ? 'โหลดแล้ว' : '❌ ไม่พบ'}`);
+                results.push(`✅ Database Functions: ${window.firebaseDB ? 'พร้อม' : '❌ ไม่พร้อม'}`);
+                
+                if (!window.database || !window.firebaseDB) {
+                    throw new Error('Firebase SDK ไม่พร้อม');
+                }
+
+                // Test 2: Try to read data
+                const { collection, getDocs } = window.firestore;
+                const teamsSnapshot = await getDocs(collection(window.db, 'teams'));
+                results.push(`✅ อ่านข้อมูล Teams: ${teamsSnapshot.size} รายการ`);
+
+                // Test 3: Try to write test data
+                const testData = {
+                    test: true,
+                    timestamp: new Date().toISOString(),
+                    message: 'Connection test successful'
+                };
+                
+                await saveToFirebase('connectionTest', testData, 'test_' + Date.now());
+                results.push(`✅ เขียนข้อมูลทดสอบ: สำเร็จ`);
+
+                // Test 4: Check real-time listener
+                results.push(`✅ Real-time Sync: ${isFirebaseReady ? 'เปิดใช้งาน' : '❌ ปิด'}`);
+
+                testDiv.innerHTML = `
+                    <div class="text-left space-y-2">
+                        ${results.map(r => `<div class="text-sm">${r}</div>`).join('')}
+                        <div class="mt-4 p-3 bg-green-100 rounded text-green-800 text-sm">
+                            🎉 <strong>การเชื่อมต่อ Firebase ทำงานปกติ!</strong><br>
+                            ข้อมูลควรซิงค์ระหว่างเครื่องได้แล้ว
+                        </div>
+                    </div>
+                `;
+
+                setTimeout(() => {
+                    Swal.update({
+                        showConfirmButton: true,
+                        confirmButtonText: 'ปิด',
+                        confirmButtonColor: '#10b981'
+                    });
+                }, 2000);
+
+            } catch (error) {
+                results.push(`❌ ข้อผิดพลาด: ${error.message}`);
+                
+                testDiv.innerHTML = `
+                    <div class="text-left space-y-2">
+                        ${results.map(r => `<div class="text-sm">${r}</div>`).join('')}
+                        <div class="mt-4 p-3 bg-red-100 rounded text-red-800 text-sm">
+                            ❌ <strong>การเชื่อมต่อมีปัญหา!</strong><br>
+                            กรุณาตรวจสอบการตั้งค่า Firebase
+                        </div>
+                    </div>
+                `;
+
+                setTimeout(() => {
+                    Swal.update({
+                        showConfirmButton: true,
+                        confirmButtonText: 'ปิด',
+                        confirmButtonColor: '#ef4444'
+                    });
+                }, 2000);
+            }
+        }
+
+        // Initialize default data in Firebase
+        async function initializeDefaultData() {
+            if (!isFirebaseReady) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Firebase ไม่เชื่อมต่อ',
+                    text: 'กรุณาตรวจสอบการเชื่อมต่อ Firebase ก่อน',
+                    confirmButtonColor: '#3b82f6'
+                });
+                return;
+            }
+
+            const result = await Swal.fire({
+                title: 'สร้างข้อมูลเริ่มต้น?',
+                text: 'จะสร้างข้อมูลคณะสีและประวัติคะแนนเริ่มต้น',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#3b82f6',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'สร้าง',
+                cancelButtonText: 'ยกเลิก'
+            });
+
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'กำลังสร้างข้อมูล...',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                try {
+                    // Initialize collections
+                    await initializeCollections();
+                    
+                    // Force reload data
+                    setTimeout(() => {
+                        loadTeamsData();
+                        loadUnityData();
+                        updateDashboard();
+                        updateCharts();
+                        updateExportSummary();
+                    }, 1000);
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'สร้างข้อมูลสำเร็จ! 🎉',
+                        text: 'ข้อมูลเริ่มต้นถูกสร้างใน Firebase แล้ว',
+                        confirmButtonColor: '#10b981'
+                    });
+
+                } catch (error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'เกิดข้อผิดพลาด',
+                        text: `ไม่สามารถสร้างข้อมูลได้: ${error.message}`,
+                        confirmButtonColor: '#ef4444'
+                    });
+                }
+            }
+        }
+
         // Initialize on page load
         $(document).ready(function() {
             // Set current time
@@ -1689,5 +1993,5 @@
             updateExportSummary();
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9865b4e594717b42',t:'MTc1OTA4ODM2NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9865c38a649f7b3e',t:'MTc1OTA4ODk2NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
