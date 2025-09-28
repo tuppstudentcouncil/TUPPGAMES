@@ -8,6 +8,8 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@100;200;300;400;500;600;700&display=swap" rel="stylesheet">
     
@@ -38,7 +40,11 @@
         window.isFirebaseReady = true;
         
         // Initialize data when Firebase is ready
-        window.initializeFirebaseData();
+        setTimeout(() => {
+            if (window.initializeFirebaseData) {
+                window.initializeFirebaseData();
+            }
+        }, 1000);
     </script>
     
     <style>
@@ -157,9 +163,14 @@
                         <p class="text-sm">ผู้ใช้: <span id="currentUser">Admin</span></p>
                         <p class="text-xs text-white/70">เข้าสู่ระบบ: <span id="loginTime">10:30 น.</span></p>
                     </div>
-                    <button class="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg transition-all" onclick="logout()">
-                        <i class="fas fa-sign-out-alt mr-2"></i>ออกจากระบบ
-                    </button>
+                    <div class="flex space-x-2">
+                        <button class="bg-blue-500/20 hover:bg-blue-500/30 text-white px-3 py-2 rounded-lg transition-all text-sm admin-only" onclick="checkSystemStatus()" title="ตรวจสอบระบบ">
+                            <i class="fas fa-stethoscope"></i>
+                        </button>
+                        <button class="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg transition-all" onclick="logout()">
+                            <i class="fas fa-sign-out-alt mr-2"></i>ออกจากระบบ
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -172,26 +183,14 @@
                 <button class="nav-item active-nav text-white px-4 py-2 text-sm md:text-base" onclick="showSection('dashboard')">
                     <i class="fas fa-chart-line mr-2"></i>แดชบอร์ด
                 </button>
-                <button id="recordNav" class="nav-item text-white px-4 py-2 text-sm md:text-base admin-only" onclick="showSection('record')">
-                    <i class="fas fa-plus-circle mr-2"></i>บันทึกผล
-                </button>
-                <button class="nav-item text-white px-4 py-2 text-sm md:text-base" onclick="showSection('scoreboard')">
-                    <i class="fas fa-medal mr-2"></i>ตารางคะแนน
-                </button>
-                <button class="nav-item text-white px-4 py-2 text-sm md:text-base" onclick="showSection('schedule')">
-                    <i class="fas fa-calendar mr-2"></i>ตารางการแข่งขัน
-                </button>
-                <button id="sportsNav" class="nav-item text-white px-4 py-2 text-sm md:text-base admin-only" onclick="showSection('sports')">
-                    <i class="fas fa-cog mr-2"></i>จัดการกีฬา
+                <button id="unityNav" class="nav-item text-white px-4 py-2 text-sm md:text-base admin-only" onclick="showSection('unity')">
+                    <i class="fas fa-heart mr-2"></i>จัดการคะแนนความสามัคคี
                 </button>
                 <button id="teamsNav" class="nav-item text-white px-4 py-2 text-sm md:text-base admin-only" onclick="showSection('teams')">
                     <i class="fas fa-users mr-2"></i>จัดการคณะสี
                 </button>
-                <button id="unityNav" class="nav-item text-white px-4 py-2 text-sm md:text-base admin-only" onclick="showSection('unity')">
-                    <i class="fas fa-heart mr-2"></i>คะแนนความสามัคคี
-                </button>
                 <button id="exportNav" class="nav-item text-white px-4 py-2 text-sm md:text-base admin-only" onclick="showSection('export')">
-                    <i class="fas fa-download mr-2"></i>ดาวน์โหลด
+                    <i class="fas fa-download mr-2"></i>ดาวน์โหลดรายงาน
                 </button>
             </div>
         </div>
@@ -206,232 +205,64 @@
                 <div class="bg-white/20 backdrop-blur-md rounded-xl p-6 card-hover">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-white/80 text-sm">การแข่งขันทั้งหมด</p>
-                            <p class="text-white text-3xl font-bold" id="totalMatches">24</p>
-                        </div>
-                        <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
-                            <i class="fas fa-gamepad text-white text-xl"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white/20 backdrop-blur-md rounded-xl p-6 card-hover">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-white/80 text-sm">เสร็จสิ้นแล้ว</p>
-                            <p class="text-white text-3xl font-bold" id="completedMatches">18</p>
-                        </div>
-                        <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
-                            <i class="fas fa-check-circle text-white text-xl"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white/20 backdrop-blur-md rounded-xl p-6 card-hover">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-white/80 text-sm">ชนิดกีฬา</p>
-                            <p class="text-white text-3xl font-bold" id="totalSports">8</p>
-                        </div>
-                        <div class="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center">
-                            <i class="fas fa-running text-white text-xl"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white/20 backdrop-blur-md rounded-xl p-6 card-hover">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-white/80 text-sm">คณะสี</p>
+                            <p class="text-white/80 text-sm">คณะสีทั้งหมด</p>
                             <p class="text-white text-3xl font-bold" id="totalTeams">4</p>
                         </div>
-                        <div class="w-12 h-12 bg-pink-500 rounded-full flex items-center justify-center">
+                        <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
                             <i class="fas fa-users text-white text-xl"></i>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Charts -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div class="bg-white/20 backdrop-blur-md rounded-xl p-6">
-                    <h3 class="text-white text-xl font-bold mb-4">คะแนนรวมแต่ละคณะสี</h3>
-                    <canvas id="scoreChart" width="400" height="300"></canvas>
+                <div class="bg-white/20 backdrop-blur-md rounded-xl p-6 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-white/80 text-sm">คะแนนเฉลี่ย</p>
+                            <p class="text-white text-3xl font-bold" id="avgScore">1002.5</p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
+                            <i class="fas fa-chart-line text-white text-xl"></i>
+                        </div>
+                    </div>
                 </div>
 
+                <div class="bg-white/20 backdrop-blur-md rounded-xl p-6 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-white/80 text-sm">คะแนนสูงสุด</p>
+                            <p class="text-white text-3xl font-bold" id="maxScore">1030</p>
+                        </div>
+                        <div class="w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center">
+                            <i class="fas fa-trophy text-white text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white/20 backdrop-blur-md rounded-xl p-6 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-white/80 text-sm">รายการทั้งหมด</p>
+                            <p class="text-white text-3xl font-bold" id="totalRecords">4</p>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center">
+                            <i class="fas fa-list text-white text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Unity Score Chart and Ranking -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div class="bg-white/20 backdrop-blur-md rounded-xl p-6">
-                    <h3 class="text-white text-xl font-bold mb-4">คะแนนความสามัคคี</h3>
+                    <h3 class="text-white text-xl font-bold mb-4">คะแนนความสามัคคีแต่ละคณะสี</h3>
                     <canvas id="unityChart" width="400" height="300"></canvas>
                 </div>
 
                 <div class="bg-white/20 backdrop-blur-md rounded-xl p-6">
-                    <h3 class="text-white text-xl font-bold mb-4">จำนวนเหรียญ</h3>
-                    <canvas id="medalChart" width="400" height="300"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <!-- Record Results Section -->
-        <div id="record" class="section hidden">
-            <div class="bg-white/20 backdrop-blur-md rounded-xl p-8">
-                <h2 class="text-white text-2xl font-bold mb-6">
-                    <i class="fas fa-plus-circle mr-3"></i>บันทึกผลการแข่งขัน
-                </h2>
-                
-                <form id="recordForm" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label class="block text-white text-sm font-medium mb-2">ชนิดกีฬา</label>
-                        <select id="sportSelect" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
-                            <option value="">เลือกชนิดกีฬา</option>
-                            <option value="football">ฟุตบอล</option>
-                            <option value="basketball">บาสเกตบอล</option>
-                            <option value="volleyball">วอลเลย์บอล</option>
-                            <option value="badminton">แบดมินตัน</option>
-                            <option value="tabletennis">ปิงปอง</option>
-                            <option value="athletics">กรีฑา</option>
-                        </select>
+                    <h3 class="text-white text-xl font-bold mb-4">อันดับคะแนนความสามัคคี</h3>
+                    <div id="unityRanking" class="space-y-4">
+                        <!-- Unity ranking will be loaded here -->
                     </div>
-
-                    <div>
-                        <label class="block text-white text-sm font-medium mb-2">รอบการแข่งขัน</label>
-                        <select id="roundSelect" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
-                            <option value="">เลือกรอบการแข่งขัน</option>
-                            <option value="preliminary">รอบแรก</option>
-                            <option value="semifinal">รอบรอง</option>
-                            <option value="final">รอบชิง</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-white text-sm font-medium mb-2">ทีมที่ 1</label>
-                        <select id="team1Select" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
-                            <option value="">เลือกคณะสี</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-white text-sm font-medium mb-2">คะแนนทีมที่ 1</label>
-                        <input type="number" id="score1" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="0">
-                    </div>
-
-                    <div>
-                        <label class="block text-white text-sm font-medium mb-2">ทีมที่ 2</label>
-                        <select id="team2Select" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
-                            <option value="">เลือกคณะสี</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-white text-sm font-medium mb-2">คะแนนทีมที่ 2</label>
-                        <input type="number" id="score2" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="0">
-                    </div>
-
-                    <div class="md:col-span-2">
-                        <label class="block text-white text-sm font-medium mb-2">หมายเหตุ</label>
-                        <textarea id="notes" rows="3" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="หมายเหตุเพิ่มเติม (ถ้ามี)"></textarea>
-                    </div>
-
-                    <div class="md:col-span-2 flex justify-end space-x-4">
-                        <button type="button" class="px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-all">
-                            <i class="fas fa-times mr-2"></i>ยกเลิก
-                        </button>
-                        <button type="submit" class="px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white rounded-lg transition-all">
-                            <i class="fas fa-save mr-2"></i>บันทึกผล
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- Scoreboard Section -->
-        <div id="scoreboard" class="section hidden">
-            <div class="bg-white/20 backdrop-blur-md rounded-xl p-8">
-                <h2 class="text-white text-2xl font-bold mb-6">
-                    <i class="fas fa-medal mr-3"></i>ตารางคะแนนรวม
-                </h2>
-                
-                <div class="overflow-x-auto">
-                    <table class="w-full text-white">
-                        <thead>
-                            <tr class="border-b border-white/20">
-                                <th class="text-left py-4 px-4">อันดับ</th>
-                                <th class="text-left py-4 px-4">คณะสี</th>
-                                <th class="text-center py-4 px-4">คะแนนกีฬา</th>
-                                <th class="text-center py-4 px-4">คะแนนสามัคคี</th>
-                                <th class="text-center py-4 px-4">คะแนนรวม</th>
-                                <th class="text-center py-4 px-4">🥇</th>
-                                <th class="text-center py-4 px-4">🥈</th>
-                                <th class="text-center py-4 px-4">🥉</th>
-                            </tr>
-                        </thead>
-                        <tbody id="scoreboardTable">
-                            <!-- Dynamic content will be loaded here -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- Schedule Section -->
-        <div id="schedule" class="section hidden">
-            <div class="bg-white/20 backdrop-blur-md rounded-xl p-8">
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-                    <h2 class="text-white text-2xl font-bold mb-4 md:mb-0">
-                        <i class="fas fa-calendar mr-3"></i>ตารางการแข่งขัน
-                    </h2>
-                    <button class="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white px-6 py-3 rounded-lg transition-all admin-only" onclick="showAddScheduleModal()">
-                        <i class="fas fa-plus mr-2"></i>เพิ่มการแข่งขัน
-                    </button>
-                </div>
-
-                <!-- Filter -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <input type="date" id="dateFilter" class="px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
-                    <select id="sportFilter" class="px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
-                        <option value="">ทุกชนิดกีฬา</option>
-                        <option value="football">ฟุตบอล</option>
-                        <option value="basketball">บาสเกตบอล</option>
-                        <option value="volleyball">วอลเลย์บอล</option>
-                    </select>
-                    <input type="text" id="searchSchedule" placeholder="ค้นหา..." class="px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500">
-                </div>
-
-                <!-- Schedule Table -->
-                <div class="overflow-x-auto">
-                    <table class="w-full text-white">
-                        <thead>
-                            <tr class="border-b border-white/20">
-                                <th class="text-left py-4 px-4">วันที่</th>
-                                <th class="text-left py-4 px-4">เวลา</th>
-                                <th class="text-left py-4 px-4">กีฬา</th>
-                                <th class="text-left py-4 px-4">การแข่งขัน</th>
-                                <th class="text-left py-4 px-4">สนาม</th>
-                                <th class="text-center py-4 px-4">สถานะ</th>
-                                <th class="text-center py-4 px-4">จัดการ</th>
-                            </tr>
-                        </thead>
-                        <tbody id="scheduleTable">
-                            <!-- Schedule will be dynamically loaded here -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- Sports Management Section -->
-        <div id="sports" class="section hidden">
-            <div class="bg-white/20 backdrop-blur-md rounded-xl p-8">
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-                    <h2 class="text-white text-2xl font-bold mb-4 md:mb-0">
-                        <i class="fas fa-cog mr-3"></i>จัดการชนิดกีฬา
-                    </h2>
-                    <button class="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white px-6 py-3 rounded-lg transition-all admin-only" onclick="showAddSportModal()">
-                        <i class="fas fa-plus mr-2"></i>เพิ่มชนิดกีฬา
-                    </button>
-                </div>
-
-                <div id="sportsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <!-- Sports will be dynamically loaded here -->
                 </div>
             </div>
         </div>
@@ -461,45 +292,71 @@
                     <i class="fas fa-heart mr-3"></i>จัดการคะแนนความสามัคคี
                 </h2>
                 
-                <form id="unityForm" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                    <div>
-                        <label class="block text-white text-sm font-medium mb-2">คณะสี</label>
-                        <select id="unityTeamSelect" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
-                            <option value="">เลือกคณะสี</option>
-                        </select>
+                <!-- Add/Deduct Score Buttons -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-green-500/20 rounded-xl p-6 border border-green-500/30">
+                        <h3 class="text-white text-lg font-bold mb-4">
+                            <i class="fas fa-plus-circle mr-2 text-green-400"></i>เพิ่มคะแนน
+                        </h3>
+                        <form id="addScoreForm" class="space-y-4">
+                            <div>
+                                <label class="block text-white text-sm font-medium mb-2">คณะสี</label>
+                                <select id="addTeamSelect" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-green-500">
+                                    <option value="">เลือกคณะสี</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-white text-sm font-medium mb-2">คะแนนที่เพิ่ม</label>
+                                <input type="number" id="addScore" min="1" max="100" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="1-100">
+                            </div>
+                            <div>
+                                <label class="block text-white text-sm font-medium mb-2">เหตุผล</label>
+                                <textarea id="addNotes" rows="2" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="เหตุผลในการเพิ่มคะแนน"></textarea>
+                            </div>
+                            <button type="submit" class="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg transition-all">
+                                <i class="fas fa-plus mr-2"></i>เพิ่มคะแนน
+                            </button>
+                        </form>
                     </div>
 
-                    <div>
-                        <label class="block text-white text-sm font-medium mb-2">คะแนนความสามัคคี</label>
-                        <input type="number" id="unityScore" min="0" max="100" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="0-100">
+                    <div class="bg-red-500/20 rounded-xl p-6 border border-red-500/30">
+                        <h3 class="text-white text-lg font-bold mb-4">
+                            <i class="fas fa-minus-circle mr-2 text-red-400"></i>หักคะแนน
+                        </h3>
+                        <form id="deductScoreForm" class="space-y-4">
+                            <div>
+                                <label class="block text-white text-sm font-medium mb-2">คณะสี</label>
+                                <select id="deductTeamSelect" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-red-500">
+                                    <option value="">เลือกคณะสี</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-white text-sm font-medium mb-2">คะแนนที่หัก</label>
+                                <input type="number" id="deductScore" min="1" max="100" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="1-100">
+                            </div>
+                            <div>
+                                <label class="block text-white text-sm font-medium mb-2">เหตุผล</label>
+                                <textarea id="deductNotes" rows="2" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="เหตุผลในการหักคะแนน"></textarea>
+                            </div>
+                            <button type="submit" class="w-full bg-red-500 hover:bg-red-600 text-white py-3 rounded-lg transition-all">
+                                <i class="fas fa-minus mr-2"></i>หักคะแนน
+                            </button>
+                        </form>
                     </div>
-
-                    <div class="md:col-span-2">
-                        <label class="block text-white text-sm font-medium mb-2">หมายเหตุ</label>
-                        <textarea id="unityNotes" rows="3" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="เหตุผลในการให้คะแนน (ถ้ามี)"></textarea>
-                    </div>
-
-                    <div class="md:col-span-2 flex justify-end space-x-4">
-                        <button type="button" class="px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-all" onclick="clearUnityForm()">
-                            <i class="fas fa-times mr-2"></i>ล้างข้อมูล
-                        </button>
-                        <button type="submit" class="px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white rounded-lg transition-all">
-                            <i class="fas fa-save mr-2"></i>บันทึกคะแนน
-                        </button>
-                    </div>
-                </form>
+                </div>
 
                 <!-- Unity Score History -->
                 <div class="bg-white/10 rounded-xl p-6">
-                    <h3 class="text-white text-lg font-bold mb-4">ประวัติการให้คะแนนความสามัคคี</h3>
+                    <h3 class="text-white text-lg font-bold mb-4">ประวัติการจัดการคะแนนความสามัคคี</h3>
                     <div class="overflow-x-auto">
                         <table class="w-full text-white">
                             <thead>
                                 <tr class="border-b border-white/20">
                                     <th class="text-left py-3 px-4">วันที่</th>
                                     <th class="text-left py-3 px-4">คณะสี</th>
+                                    <th class="text-center py-3 px-4">ประเภท</th>
                                     <th class="text-center py-3 px-4">คะแนน</th>
-                                    <th class="text-left py-3 px-4">หมายเหตุ</th>
+                                    <th class="text-left py-3 px-4">เหตุผล</th>
                                     <th class="text-center py-3 px-4">จัดการ</th>
                                 </tr>
                             </thead>
@@ -516,16 +373,16 @@
         <div id="export" class="section hidden">
             <div class="bg-white/20 backdrop-blur-md rounded-xl p-8">
                 <h2 class="text-white text-2xl font-bold mb-6">
-                    <i class="fas fa-download mr-3"></i>ดาวน์โหลดรายงาน
+                    <i class="fas fa-download mr-3"></i>ดาวน์โหลดรายงานคะแนนความสามัคคี
                 </h2>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div class="team-card rounded-xl p-6 text-white card-hover">
                         <div class="text-center">
-                            <i class="fas fa-file-pdf text-6xl mb-4"></i>
+                            <i class="fas fa-file-pdf text-6xl mb-4 text-red-400"></i>
                             <h3 class="text-xl font-bold mb-2">รายงาน PDF</h3>
-                            <p class="text-white/80 mb-4">ดาวน์โหลดรายงานผลการแข่งขันและตารางคะแนนในรูปแบบ PDF</p>
-                            <button class="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-lg transition-all w-full" onclick="exportPDF()">
+                            <p class="text-white/80 mb-4">ดาวน์โหลดรายงานคะแนนความสามัคคีและประวัติการจัดการในรูปแบบ PDF</p>
+                            <button class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg transition-all w-full" onclick="exportPDF()">
                                 <i class="fas fa-download mr-2"></i>ดาวน์โหลด PDF
                             </button>
                         </div>
@@ -533,10 +390,10 @@
 
                     <div class="team-card rounded-xl p-6 text-white card-hover">
                         <div class="text-center">
-                            <i class="fas fa-file-excel text-6xl mb-4"></i>
+                            <i class="fas fa-file-excel text-6xl mb-4 text-green-400"></i>
                             <h3 class="text-xl font-bold mb-2">รายงาน Excel</h3>
-                            <p class="text-white/80 mb-4">ดาวน์โหลดข้อมูลการแข่งขันในรูปแบบ Excel สำหรับการวิเคราะห์</p>
-                            <button class="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-lg transition-all w-full" onclick="exportExcel()">
+                            <p class="text-white/80 mb-4">ดาวน์โหลดข้อมูลคะแนนความสามัคคีในรูปแบบ Excel สำหรับการวิเคราะห์</p>
+                            <button class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg transition-all w-full" onclick="exportExcel()">
                                 <i class="fas fa-download mr-2"></i>ดาวน์โหลด Excel
                             </button>
                         </div>
@@ -544,24 +401,21 @@
                 </div>
 
                 <div class="mt-8 bg-white/10 rounded-xl p-6">
-                    <h3 class="text-white text-lg font-bold mb-4">ตัวเลือกการส่งออก</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <h3 class="text-white text-lg font-bold mb-4">สรุปข้อมูลปัจจุบัน</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label class="block text-white text-sm font-medium mb-2">ช่วงวันที่</label>
-                            <div class="flex space-x-2">
-                                <input type="date" class="flex-1 px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
-                                <span class="text-white self-center">ถึง</span>
-                                <input type="date" class="flex-1 px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            <h4 class="text-white font-medium mb-3">คะแนนความสามัคคีแต่ละคณะสี</h4>
+                            <div id="exportSummary" class="space-y-2">
+                                <!-- Export summary will be loaded here -->
                             </div>
                         </div>
                         <div>
-                            <label class="block text-white text-sm font-medium mb-2">ชนิดกีฬา</label>
-                            <select class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
-                                <option value="">ทุกชนิดกีฬา</option>
-                                <option value="football">ฟุตบอล</option>
-                                <option value="basketball">บาสเกตบอล</option>
-                                <option value="volleyball">วอลเลย์บอล</option>
-                            </select>
+                            <h4 class="text-white font-medium mb-3">สถิติการจัดการคะแนน</h4>
+                            <div class="space-y-2 text-white/80 text-sm">
+                                <p>รายการเพิ่มคะแนน: <span id="addCount" class="text-green-400 font-bold">0</span> รายการ</p>
+                                <p>รายการหักคะแนน: <span id="deductCount" class="text-red-400 font-bold">0</span> รายการ</p>
+                                <p>รายการทั้งหมด: <span id="totalCount" class="text-white font-bold">0</span> รายการ</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -588,31 +442,17 @@
         
         // Local data storage (fallback when Firebase is not ready)
         let localData = {
-            sports: [
-                { id: 'sport1', name: 'ฟุตบอล', teams: 4, matches: 6 },
-                { id: 'sport2', name: 'บาสเกตบอล', teams: 4, matches: 6 },
-                { id: 'sport3', name: 'วอลเลย์บอล', teams: 4, matches: 6 },
-                { id: 'sport4', name: 'แบดมินตัน', teams: 4, matches: 6 },
-                { id: 'sport5', name: 'ปิงปอง', teams: 4, matches: 6 },
-                { id: 'sport6', name: 'กรีฑา', teams: 4, matches: 8 }
-            ],
             teams: [
-                { id: 'team1', name: 'คณะสีแดง', color: '#ef4444', sportsScore: 270, unityScore: 85, totalScore: 355, gold: 6, silver: 7, bronze: 4 },
-                { id: 'team2', name: 'คณะสีน้ำเงิน', color: '#3b82f6', sportsScore: 285, unityScore: 92, totalScore: 377, gold: 8, silver: 5, bronze: 3 },
-                { id: 'team3', name: 'คณะสีเหลือง', color: '#f59e0b', sportsScore: 230, unityScore: 78, totalScore: 308, gold: 3, silver: 4, bronze: 7 },
-                { id: 'team4', name: 'คณะสีเขียว', color: '#22c55e', sportsScore: 245, unityScore: 88, totalScore: 333, gold: 4, silver: 6, bronze: 8 }
-            ],
-            schedule: [
-                { id: 'schedule1', date: '15 ม.ค. 2025', time: '09:00', sport: 'ฟุตบอล', match: 'คณะสีแดง vs คณะสีน้ำเงิน', venue: 'สนามหญ้าเทียม', status: 'เสร็จสิ้น' },
-                { id: 'schedule2', date: '15 ม.ค. 2025', time: '10:30', sport: 'บาสเกตบอล', match: 'คณะสีเหลือง vs คณะสีเขียว', venue: 'สนามบาส A', status: 'กำลังแข่ง' },
-                { id: 'schedule3', date: '15 ม.ค. 2025', time: '14:00', sport: 'วอลเลย์บอล', match: 'คณะสีแดง vs คณะสีเขียว', venue: 'โรงยิม', status: 'รอแข่ง' },
-                { id: 'schedule4', date: '16 ม.ค. 2025', time: '09:00', sport: 'แบดมินตัน', match: 'คณะสีน้ำเงิน vs คณะสีเหลือง', venue: 'โรงยิม B', status: 'รอแข่ง' }
+                { id: 'team1', name: 'คณะสีแดง', color: '#ef4444', unityScore: 1020, sportsScore: 0, totalScore: 1020, gold: 0, silver: 0, bronze: 0 },
+                { id: 'team2', name: 'คณะสีน้ำเงิน', color: '#3b82f6', unityScore: 975, sportsScore: 0, totalScore: 975, gold: 0, silver: 0, bronze: 0 },
+                { id: 'team3', name: 'คณะสีเหลือง', color: '#f59e0b', unityScore: 1030, sportsScore: 0, totalScore: 1030, gold: 0, silver: 0, bronze: 0 },
+                { id: 'team4', name: 'คณะสีเขียว', color: '#22c55e', unityScore: 985, sportsScore: 0, totalScore: 985, gold: 0, silver: 0, bronze: 0 }
             ],
             unityHistory: [
-                { id: 'unity1', date: '15 ม.ค. 2025', teamId: 'team2', teamName: 'คณะสีน้ำเงิน', score: 25, notes: 'การแสดงเชียร์ยอดเยี่ยม' },
-                { id: 'unity2', date: '15 ม.ค. 2025', teamId: 'team1', teamName: 'คณะสีแดง', score: 20, notes: 'การจัดระเบียบดี' },
-                { id: 'unity3', date: '14 ม.ค. 2025', teamId: 'team4', teamName: 'คณะสีเขียว', score: 23, notes: 'ความร่วมมือในการแข่งขัน' },
-                { id: 'unity4', date: '14 ม.ค. 2025', teamId: 'team3', teamName: 'คณะสีเหลือง', score: 18, notes: 'การเข้าร่วมกิจกรรม' }
+                { id: 'unity1', date: '15 ม.ค. 2025', teamId: 'team2', teamName: 'คณะสีน้ำเงิน', score: -25, type: 'deduct', notes: 'ทิ้งขยะในสนาม' },
+                { id: 'unity2', date: '15 ม.ค. 2025', teamId: 'team1', teamName: 'คณะสีแดง', score: 20, type: 'add', notes: 'การจัดระเบียบดี' },
+                { id: 'unity3', date: '14 ม.ค. 2025', teamId: 'team4', teamName: 'คณะสีเขียว', score: -15, type: 'deduct', notes: 'มาสาย' },
+                { id: 'unity4', date: '14 ม.ค. 2025', teamId: 'team3', teamName: 'คณะสีเหลือง', score: 30, type: 'add', notes: 'การเข้าร่วมกิจกรรมดีเยี่ยม' }
             ]
         };
 
@@ -634,10 +474,23 @@
                 setupRealtimeListeners();
                 
                 console.log('Firebase initialized successfully');
+                
+                // Load data after Firebase is ready
+                loadTeamsData();
+                loadUnityData();
+                updateDashboard();
+                updateExportSummary();
+                
             } catch (error) {
                 console.error('Firebase initialization error:', error);
                 updateFirebaseStatus(false);
                 isFirebaseReady = false;
+                
+                // Load local data as fallback
+                loadTeamsData();
+                loadUnityData();
+                updateDashboard();
+                updateExportSummary();
             }
         };
 
@@ -659,7 +512,7 @@
             
             try {
                 // Check if collections exist, if not create them with default data
-                const collections = ['sports', 'teams', 'schedule', 'unityHistory'];
+                const collections = ['teams', 'unityHistory'];
                 
                 for (const collectionName of collections) {
                     const snapshot = await getDocs(collection(window.db, collectionName));
@@ -681,15 +534,6 @@
         // Set up real-time listeners for all collections
         function setupRealtimeListeners() {
             const { collection, onSnapshot } = window.firestore;
-            
-            // Listen to sports changes
-            onSnapshot(collection(window.db, 'sports'), (snapshot) => {
-                localData.sports = [];
-                snapshot.forEach((doc) => {
-                    localData.sports.push({ id: doc.id, ...doc.data() });
-                });
-                loadSportsData();
-            });
 
             // Listen to teams changes
             onSnapshot(collection(window.db, 'teams'), (snapshot) => {
@@ -698,17 +542,9 @@
                     localData.teams.push({ id: doc.id, ...doc.data() });
                 });
                 loadTeamsData();
-                loadScoreboardData();
+                updateDashboard();
                 updateCharts();
-            });
-
-            // Listen to schedule changes
-            onSnapshot(collection(window.db, 'schedule'), (snapshot) => {
-                localData.schedule = [];
-                snapshot.forEach((doc) => {
-                    localData.schedule.push({ id: doc.id, ...doc.data() });
-                });
-                loadScheduleData();
+                updateExportSummary();
             });
 
             // Listen to unity history changes
@@ -718,28 +554,38 @@
                     localData.unityHistory.push({ id: doc.id, ...doc.data() });
                 });
                 loadUnityData();
+                updateExportSummary();
             });
         }
 
-        // Firebase CRUD operations
+        // Firebase CRUD operations with better error handling
         async function saveToFirebase(collectionName, data, docId = null) {
             if (!isFirebaseReady) {
                 console.log('Firebase not ready, saving locally only');
-                return;
+                throw new Error('Firebase not connected');
+            }
+
+            if (!window.db || !window.firestore) {
+                console.log('Firebase objects not available');
+                throw new Error('Firebase not initialized');
             }
 
             try {
                 const { collection, addDoc, setDoc, doc } = window.firestore;
                 
+                console.log(`Saving to Firebase collection: ${collectionName}`, { docId, dataKeys: Object.keys(data) });
+                
                 if (docId) {
                     await setDoc(doc(window.db, collectionName, docId), data);
+                    console.log(`Successfully saved document ${docId} to ${collectionName}`);
                 } else {
                     const docRef = await addDoc(collection(window.db, collectionName), data);
+                    console.log(`Successfully added document ${docRef.id} to ${collectionName}`);
                     return docRef.id;
                 }
             } catch (error) {
-                console.error('Error saving to Firebase:', error);
-                throw error;
+                console.error(`Error saving to Firebase ${collectionName}:`, error);
+                throw new Error(`Firebase save failed: ${error.message}`);
             }
         }
 
@@ -826,11 +672,10 @@
                 initCharts();
                 
                 // Load dynamic data
-                loadSportsData();
-                loadScheduleData();
                 loadTeamsData();
-                loadScoreboardData();
                 loadUnityData();
+                updateDashboard();
+                updateExportSummary();
                 
                 Swal.fire({
                     icon: 'success',
@@ -902,20 +747,20 @@
 
         // Initialize charts
         function initCharts() {
-            const teams = [...localData.teams].sort((a, b) => b.totalScore - a.totalScore);
+            const teams = [...localData.teams].sort((a, b) => b.unityScore - a.unityScore);
             
-            // Score Chart
-            const scoreCtx = document.getElementById('scoreChart').getContext('2d');
-            if (charts.scoreChart) {
-                charts.scoreChart.destroy();
+            // Unity Chart
+            const unityCtx = document.getElementById('unityChart').getContext('2d');
+            if (charts.unityChart) {
+                charts.unityChart.destroy();
             }
-            charts.scoreChart = new Chart(scoreCtx, {
+            charts.unityChart = new Chart(unityCtx, {
                 type: 'bar',
                 data: {
                     labels: teams.map(team => team.name),
                     datasets: [{
-                        label: 'คะแนนรวม',
-                        data: teams.map(team => team.totalScore),
+                        label: 'คะแนนความสามัคคี',
+                        data: teams.map(team => team.unityScore),
                         backgroundColor: teams.map(team => team.color + '80'),
                         borderColor: teams.map(team => team.color),
                         borderWidth: 2
@@ -933,6 +778,8 @@
                     scales: {
                         y: {
                             beginAtZero: true,
+                            min: 900,
+                            max: 1100,
                             ticks: {
                                 color: 'white'
                             },
@@ -951,85 +798,9 @@
                     }
                 }
             });
-
-            // Unity Chart
-            const unityCtx = document.getElementById('unityChart').getContext('2d');
-            if (charts.unityChart) {
-                charts.unityChart.destroy();
-            }
-            charts.unityChart = new Chart(unityCtx, {
-                type: 'radar',
-                data: {
-                    labels: teams.map(team => team.name),
-                    datasets: [{
-                        label: 'คะแนนความสามัคคี',
-                        data: teams.map(team => team.unityScore),
-                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                        borderColor: 'rgba(255, 99, 132, 1)',
-                        borderWidth: 2,
-                        pointBackgroundColor: 'rgba(255, 99, 132, 1)',
-                        pointBorderColor: '#fff',
-                        pointHoverBackgroundColor: '#fff',
-                        pointHoverBorderColor: 'rgba(255, 99, 132, 1)'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            labels: {
-                                color: 'white'
-                            }
-                        }
-                    },
-                    scales: {
-                        r: {
-                            beginAtZero: true,
-                            max: 100,
-                            ticks: {
-                                color: 'white'
-                            },
-                            grid: {
-                                color: 'rgba(255, 255, 255, 0.1)'
-                            },
-                            angleLines: {
-                                color: 'rgba(255, 255, 255, 0.1)'
-                            },
-                            pointLabels: {
-                                color: 'white'
-                            }
-                        }
-                    }
-                }
-            });
-
-            // Medal Chart
-            const medalCtx = document.getElementById('medalChart').getContext('2d');
-            if (charts.medalChart) {
-                charts.medalChart.destroy();
-            }
-            charts.medalChart = new Chart(medalCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: teams.map(team => team.name),
-                    datasets: [{
-                        data: teams.map(team => team.gold + team.silver + team.bronze),
-                        backgroundColor: teams.map(team => team.color + '80'),
-                        borderColor: teams.map(team => team.color),
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            labels: {
-                                color: 'white'
-                            }
-                        }
-                    }
-                }
-            });
+            
+            // Update unity ranking
+            updateUnityRanking();
         }
 
         // Update charts with new data
@@ -1037,6 +808,87 @@
             if (Object.keys(charts).length > 0) {
                 initCharts();
             }
+        }
+
+        // Update dashboard statistics
+        function updateDashboard() {
+            const teams = localData.teams;
+            const totalTeams = teams.length;
+            const avgScore = teams.reduce((sum, team) => sum + team.unityScore, 0) / totalTeams;
+            const maxScore = Math.max(...teams.map(team => team.unityScore));
+            const totalRecords = localData.unityHistory.length;
+
+            document.getElementById('totalTeams').textContent = totalTeams;
+            document.getElementById('avgScore').textContent = avgScore.toFixed(1);
+            document.getElementById('maxScore').textContent = maxScore;
+            document.getElementById('totalRecords').textContent = totalRecords;
+        }
+
+        // Update unity ranking
+        function updateUnityRanking() {
+            const teams = [...localData.teams].sort((a, b) => b.unityScore - a.unityScore);
+            const rankingDiv = document.getElementById('unityRanking');
+            
+            rankingDiv.innerHTML = '';
+            
+            teams.forEach((team, index) => {
+                const rankItem = document.createElement('div');
+                rankItem.className = 'flex items-center justify-between p-3 bg-white/10 rounded-lg';
+                
+                let medal = '';
+                if (index === 0) medal = '🥇';
+                else if (index === 1) medal = '🥈';
+                else if (index === 2) medal = '🥉';
+                else medal = `#${index + 1}`;
+                
+                rankItem.innerHTML = `
+                    <div class="flex items-center">
+                        <span class="text-2xl mr-3">${medal}</span>
+                        <div class="flex items-center">
+                            <div class="w-4 h-4 rounded-full mr-2" style="background-color: ${team.color}"></div>
+                            <span class="text-white font-medium">${team.name}</span>
+                        </div>
+                    </div>
+                    <span class="text-white text-xl font-bold">${team.unityScore}</span>
+                `;
+                
+                rankingDiv.appendChild(rankItem);
+            });
+        }
+
+        // Update export summary
+        function updateExportSummary() {
+            const summaryDiv = document.getElementById('exportSummary');
+            if (!summaryDiv) return;
+            
+            const teams = [...localData.teams].sort((a, b) => b.unityScore - a.unityScore);
+            
+            summaryDiv.innerHTML = '';
+            
+            teams.forEach(team => {
+                const summaryItem = document.createElement('div');
+                summaryItem.className = 'flex items-center justify-between text-white/80 text-sm';
+                summaryItem.innerHTML = `
+                    <div class="flex items-center">
+                        <div class="w-3 h-3 rounded-full mr-2" style="background-color: ${team.color}"></div>
+                        ${team.name}
+                    </div>
+                    <span class="font-bold">${team.unityScore} คะแนน</span>
+                `;
+                summaryDiv.appendChild(summaryItem);
+            });
+
+            // Update statistics
+            const addRecords = localData.unityHistory.filter(r => r.type === 'add');
+            const deductRecords = localData.unityHistory.filter(r => r.type === 'deduct');
+            
+            const addCountEl = document.getElementById('addCount');
+            const deductCountEl = document.getElementById('deductCount');
+            const totalCountEl = document.getElementById('totalCount');
+            
+            if (addCountEl) addCountEl.textContent = addRecords.length;
+            if (deductCountEl) deductCountEl.textContent = deductRecords.length;
+            if (totalCountEl) totalCountEl.textContent = localData.unityHistory.length;
         }
 
         // Navigation
@@ -1058,34 +910,25 @@
             event.target.classList.add('active-nav');
         }
 
-        // Form submission
-        document.getElementById('recordForm').addEventListener('submit', async function(e) {
+        // Add Score Form submission
+        document.getElementById('addScoreForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            // Check if user has admin permission
             if (userRole !== 'admin') {
                 Swal.fire({
                     icon: 'error',
                     title: 'ไม่มีสิทธิ์เข้าถึง',
-                    text: 'เฉพาะผู้ดูแลระบบเท่านั้นที่สามารถบันทึกข้อมูลได้',
+                    text: 'เฉพาะผู้ดูแลระบบเท่านั้นที่สามารถจัดการคะแนนได้',
                     confirmButtonColor: '#3b82f6'
                 });
                 return;
             }
             
-            const formData = {
-                sport: document.getElementById('sportSelect').value,
-                round: document.getElementById('roundSelect').value,
-                team1: document.getElementById('team1Select').value,
-                score1: document.getElementById('score1').value,
-                team2: document.getElementById('team2Select').value,
-                score2: document.getElementById('score2').value,
-                notes: document.getElementById('notes').value,
-                timestamp: new Date().toISOString()
-            };
-
-            // Validate form
-            if (!formData.sport || !formData.round || !formData.team1 || !formData.team2) {
+            const teamId = document.getElementById('addTeamSelect').value;
+            const score = parseInt(document.getElementById('addScore').value);
+            const notes = document.getElementById('addNotes').value;
+            
+            if (!teamId || !score || !notes) {
                 Swal.fire({
                     icon: 'error',
                     title: 'ข้อมูลไม่ครบถ้วน',
@@ -1094,159 +937,234 @@
                 });
                 return;
             }
+            
+            await processScoreChange(teamId, score, 'add', notes);
+        });
 
-            if (formData.team1 === formData.team2) {
+        // Deduct Score Form submission
+        document.getElementById('deductScoreForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (userRole !== 'admin') {
                 Swal.fire({
                     icon: 'error',
-                    title: 'ข้อผิดพลาด',
-                    text: 'ไม่สามารถเลือกทีมเดียวกันได้',
+                    title: 'ไม่มีสิทธิ์เข้าถึง',
+                    text: 'เฉพาะผู้ดูแลระบบเท่านั้นที่สามารถจัดการคะแนนได้',
                     confirmButtonColor: '#3b82f6'
                 });
                 return;
             }
-
-            // Show loading
-            Swal.fire({
-                title: 'กำลังบันทึกข้อมูล...',
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
-
-            try {
-                // Save to Firebase
-                await saveToFirebase('matches', formData);
-                
-                Swal.fire({
-                    icon: 'success',
-                    title: 'บันทึกสำเร็จ!',
-                    text: 'ข้อมูลผลการแข่งขันถูกบันทึกและซิงค์แล้ว',
-                    confirmButtonColor: '#3b82f6'
-                }).then(() => {
-                    // Reset form
-                    document.getElementById('recordForm').reset();
-                });
-            } catch (error) {
+            
+            const teamId = document.getElementById('deductTeamSelect').value;
+            const score = parseInt(document.getElementById('deductScore').value);
+            const notes = document.getElementById('deductNotes').value;
+            
+            if (!teamId || !score || !notes) {
                 Swal.fire({
                     icon: 'error',
-                    title: 'เกิดข้อผิดพลาด',
-                    text: 'ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีกครั้ง',
+                    title: 'ข้อมูลไม่ครบถ้วน',
+                    text: 'กรุณากรอกข้อมูลให้ครบถ้วน',
+                    confirmButtonColor: '#3b82f6'
+                });
+                return;
+            }
+            
+            await processScoreChange(teamId, -score, 'deduct', notes);
+        });
+
+        // Process score change
+        async function processScoreChange(teamId, scoreChange, type, notes) {
+            const team = localData.teams.find(t => t.id === teamId);
+            if (!team) return;
+            
+            const actionText = type === 'add' ? 'เพิ่ม' : 'หัก';
+            const scoreText = Math.abs(scoreChange);
+            
+            try {
+                // Show loading with timeout warning
+                let loadingTimer;
+                Swal.fire({
+                    title: `กำลัง${actionText}คะแนน...`,
+                    html: `<div class="text-center">
+                        <div class="mb-3">กำลังบันทึกข้อมูลไปยัง Firebase</div>
+                        <div class="text-sm text-gray-600">หากใช้เวลานานกว่า 10 วินาที อาจมีปัญหาการเชื่อมต่อ</div>
+                    </div>`,
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                        
+                        // Set timeout warning
+                        loadingTimer = setTimeout(() => {
+                            Swal.update({
+                                html: `<div class="text-center">
+                                    <div class="mb-3 text-orange-600">⚠️ การเชื่อมต่อช้ากว่าปกติ</div>
+                                    <div class="text-sm">กำลังพยายามบันทึกข้อมูล...</div>
+                                    <div class="text-xs mt-2">Firebase Status: ${isFirebaseReady ? '✅ เชื่อมต่อแล้ว' : '❌ ไม่เชื่อมต่อ'}</div>
+                                </div>`
+                            });
+                        }, 5000);
+                    }
+                });
+
+                // Create unity record with unique ID
+                const recordId = 'unity_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                const unityRecord = {
+                    id: recordId,
+                    date: new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' }),
+                    teamId: teamId,
+                    teamName: team.name,
+                    score: scoreChange,
+                    type: type,
+                    notes: notes,
+                    timestamp: new Date().toISOString()
+                };
+                
+                // Update local data first (for immediate UI update)
+                localData.unityHistory.unshift(unityRecord);
+                
+                // Update team score locally
+                const teamIndex = localData.teams.findIndex(t => t.id === teamId);
+                if (teamIndex !== -1) {
+                    localData.teams[teamIndex] = {
+                        ...team,
+                        unityScore: team.unityScore + scoreChange,
+                        totalScore: (team.sportsScore || 0) + team.unityScore + scoreChange
+                    };
+                }
+                
+                // Save to Firebase (with timeout)
+                const savePromise = Promise.all([
+                    saveToFirebase('unityHistory', unityRecord, recordId),
+                    updateFirebaseDoc('teams', teamId, localData.teams[teamIndex])
+                ]);
+                
+                // Add timeout to Firebase operations
+                const timeoutPromise = new Promise((_, reject) => {
+                    setTimeout(() => reject(new Error('Timeout')), 15000);
+                });
+                
+                try {
+                    await Promise.race([savePromise, timeoutPromise]);
+                    clearTimeout(loadingTimer);
+                    
+                    // Clear forms
+                    clearScoreForms();
+                    
+                    // Update UI immediately
+                    loadTeamsData();
+                    loadUnityData();
+                    updateDashboard();
+                    updateCharts();
+                    updateExportSummary();
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: `${actionText}คะแนนสำเร็จ! 🎉`,
+                        html: `<div class="text-center">
+                            <div class="text-lg mb-2">${actionText}คะแนน <strong>${scoreText}</strong> คะแนน</div>
+                            <div class="text-md">ให้ <strong>${team.name}</strong></div>
+                            <div class="text-sm text-gray-600 mt-2">✅ บันทึกลง Firebase เรียบร้อย</div>
+                        </div>`,
+                        timer: 3000,
+                        showConfirmButton: false
+                    });
+                    
+                } catch (firebaseError) {
+                    clearTimeout(loadingTimer);
+                    
+                    if (firebaseError.message === 'Timeout') {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'บันทึกข้อมูลช้า ⏰',
+                            html: `<div class="text-center">
+                                <div class="mb-3">การเชื่อมต่อ Firebase ช้ากว่าปกติ</div>
+                                <div class="text-sm text-green-600">✅ ข้อมูลถูกบันทึกในระบบแล้ว</div>
+                                <div class="text-xs mt-2">Firebase จะซิงค์ข้อมูลเมื่อการเชื่อมต่อดีขึ้น</div>
+                            </div>`,
+                            confirmButtonColor: '#3b82f6'
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'บันทึกข้อมูลแล้ว ⚠️',
+                            html: `<div class="text-center">
+                                <div class="mb-3">✅ ข้อมูลถูกบันทึกในระบบแล้ว</div>
+                                <div class="text-sm text-orange-600">⚠️ Firebase ซิงค์ไม่สำเร็จ</div>
+                                <div class="text-xs mt-2">ข้อมูลจะถูกซิงค์เมื่อการเชื่อมต่อกลับมาปกติ</div>
+                            </div>`,
+                            confirmButtonColor: '#3b82f6'
+                        });
+                    }
+                    
+                    // Clear forms and update UI anyway
+                    clearScoreForms();
+                    loadTeamsData();
+                    loadUnityData();
+                    updateDashboard();
+                    updateCharts();
+                    updateExportSummary();
+                }
+                
+            } catch (error) {
+                console.error('Score change error:', error);
+                
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด ❌',
+                    html: `<div class="text-center">
+                        <div class="mb-3">ไม่สามารถ${actionText}คะแนนได้</div>
+                        <div class="text-sm text-red-600">Error: ${error.message}</div>
+                        <div class="text-xs mt-2">กรุณาลองใหม่อีกครั้ง</div>
+                    </div>`,
                     confirmButtonColor: '#3b82f6'
                 });
             }
-        });
-
-        // Load sports data
-        function loadSportsData() {
-            const sportsGrid = document.getElementById('sportsGrid');
-            sportsGrid.innerHTML = '';
-            
-            localData.sports.forEach(sport => {
-                const sportCard = document.createElement('div');
-                sportCard.className = 'sport-card rounded-xl p-6 text-white card-hover';
-                sportCard.innerHTML = `
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-xl font-bold">${sport.name}</h3>
-                        <div class="flex space-x-2 admin-only">
-                            <button class="text-white/80 hover:text-white" onclick="editSport('${sport.id}')">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="text-white/80 hover:text-white" onclick="deleteSport('${sport.id}')">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <p class="text-white/80 text-sm mb-2">จำนวนทีม: ${sport.teams} ทีม</p>
-                    <p class="text-white/80 text-sm">การแข่งขัน: ${sport.matches} นัด</p>
-                `;
-                sportsGrid.appendChild(sportCard);
-            });
-            
-            // Update permissions after loading
-            setUserPermissions();
         }
 
-        // Load schedule data
-        function loadScheduleData() {
-            const scheduleTable = document.getElementById('scheduleTable');
-            scheduleTable.innerHTML = '';
-            
-            localData.schedule.forEach(match => {
-                const row = document.createElement('tr');
-                row.className = 'border-b border-white/10';
-                
-                let statusClass = 'bg-gray-500';
-                if (match.status === 'เสร็จสิ้น') statusClass = 'bg-green-500';
-                else if (match.status === 'กำลังแข่ง') statusClass = 'bg-yellow-500';
-                else if (match.status === 'รอแข่ง') statusClass = 'bg-blue-500';
-                
-                row.innerHTML = `
-                    <td class="py-4 px-4">${match.date}</td>
-                    <td class="py-4 px-4">${match.time}</td>
-                    <td class="py-4 px-4">${match.sport}</td>
-                    <td class="py-4 px-4">${match.match}</td>
-                    <td class="py-4 px-4">${match.venue}</td>
-                    <td class="py-4 px-4 text-center">
-                        <span class="${statusClass} text-white px-3 py-1 rounded-full text-sm">${match.status}</span>
-                    </td>
-                    <td class="py-4 px-4 text-center">
-                        <div class="admin-only">
-                            <button class="text-blue-400 hover:text-blue-300 mr-2" onclick="editSchedule('${match.id}')">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="text-red-400 hover:text-red-300" onclick="deleteSchedule('${match.id}')">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                        <div class="guest-only">
-                            <span class="text-white/50 text-sm">-</span>
-                        </div>
-                    </td>
-                `;
-                scheduleTable.appendChild(row);
-            });
-            
-            // Update permissions after loading
-            setUserPermissions();
+        // Clear score forms
+        function clearScoreForms() {
+            document.getElementById('addScoreForm').reset();
+            document.getElementById('deductScoreForm').reset();
         }
 
         // Load teams data
         function loadTeamsData() {
             const teamsGrid = document.getElementById('teamsGrid');
-            teamsGrid.innerHTML = '';
-            
-            localData.teams.forEach(team => {
-                const teamCard = document.createElement('div');
-                teamCard.className = 'bg-white/20 backdrop-blur-md rounded-xl p-6 card-hover';
-                teamCard.innerHTML = `
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center">
-                            <div class="w-6 h-6 rounded-full mr-3" style="background-color: ${team.color}"></div>
-                            <h3 class="text-xl font-bold text-white">${team.name}</h3>
+            if (teamsGrid) {
+                teamsGrid.innerHTML = '';
+                
+                localData.teams.forEach(team => {
+                    const teamCard = document.createElement('div');
+                    teamCard.className = 'bg-white/20 backdrop-blur-md rounded-xl p-6 card-hover';
+                    teamCard.innerHTML = `
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center">
+                                <div class="w-6 h-6 rounded-full mr-3" style="background-color: ${team.color}"></div>
+                                <h3 class="text-xl font-bold text-white">${team.name}</h3>
+                            </div>
+                            <div class="flex space-x-2 admin-only">
+                                <button class="text-white/80 hover:text-white" onclick="editTeam('${team.id}')">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="text-white/80 hover:text-white" onclick="deleteTeam('${team.id}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
                         </div>
-                        <div class="flex space-x-2 admin-only">
-                            <button class="text-white/80 hover:text-white" onclick="editTeam('${team.id}')">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="text-white/80 hover:text-white" onclick="deleteTeam('${team.id}')">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                        <div class="grid grid-cols-2 gap-4 text-white/80 text-sm">
+                            <div>
+                                <p>คะแนนกีฬา: <span class="font-bold text-white">${team.sportsScore || 0}</span></p>
+                                <p>คะแนนสามัคคี: <span class="font-bold text-white">${team.unityScore}</span></p>
+                            </div>
+                            <div>
+                                <p>คะแนนรวม: <span class="font-bold text-white text-lg">${(team.sportsScore || 0) + team.unityScore}</span></p>
+                                <p>เหรียญ: <span class="font-bold text-white">${(team.gold || 0) + (team.silver || 0) + (team.bronze || 0)}</span></p>
+                            </div>
                         </div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4 text-white/80 text-sm">
-                        <div>
-                            <p>คะแนนกีฬา: <span class="font-bold text-white">${team.sportsScore}</span></p>
-                            <p>คะแนนสามัคคี: <span class="font-bold text-white">${team.unityScore}</span></p>
-                        </div>
-                        <div>
-                            <p>คะแนนรวม: <span class="font-bold text-white text-lg">${team.totalScore}</span></p>
-                            <p>เหรียญ: <span class="font-bold text-white">${team.gold + team.silver + team.bronze}</span></p>
-                        </div>
-                    </div>
-                `;
-                teamsGrid.appendChild(teamCard);
-            });
+                    `;
+                    teamsGrid.appendChild(teamCard);
+                });
+            }
             
             // Update team select options
             updateTeamSelects();
@@ -1255,49 +1173,27 @@
             setUserPermissions();
         }
 
-        // Load scoreboard data
-        function loadScoreboardData() {
-            const scoreboardTable = document.getElementById('scoreboardTable');
-            scoreboardTable.innerHTML = '';
-            
-            const sortedTeams = [...localData.teams].sort((a, b) => b.totalScore - a.totalScore);
-            
-            sortedTeams.forEach((team, index) => {
-                const row = document.createElement('tr');
-                row.className = `border-b border-white/10 ${index === 0 ? 'bg-gradient-to-r from-yellow-500/20 to-yellow-600/20' : ''}`;
-                
-                row.innerHTML = `
-                    <td class="py-4 px-4 font-bold">${index + 1}</td>
-                    <td class="py-4 px-4">
-                        <div class="flex items-center">
-                            <div class="w-4 h-4 rounded-full mr-3" style="background-color: ${team.color}"></div>
-                            ${team.name}
-                        </div>
-                    </td>
-                    <td class="py-4 px-4 text-center font-bold">${team.sportsScore}</td>
-                    <td class="py-4 px-4 text-center font-bold">${team.unityScore}</td>
-                    <td class="py-4 px-4 text-center font-bold text-2xl">${team.totalScore}</td>
-                    <td class="py-4 px-4 text-center font-bold">${team.gold}</td>
-                    <td class="py-4 px-4 text-center font-bold">${team.silver}</td>
-                    <td class="py-4 px-4 text-center font-bold">${team.bronze}</td>
-                `;
-                scoreboardTable.appendChild(row);
-            });
-        }
-
         // Load unity data
         function loadUnityData() {
             const unityHistoryTable = document.getElementById('unityHistoryTable');
+            if (!unityHistoryTable) return;
+            
             unityHistoryTable.innerHTML = '';
             
             localData.unityHistory.forEach(record => {
                 const row = document.createElement('tr');
                 row.className = 'border-b border-white/10';
                 
+                const typeText = record.type === 'add' ? 'เพิ่ม' : 'หัก';
+                const typeClass = record.type === 'add' ? 'text-green-400' : 'text-red-400';
+                
                 row.innerHTML = `
                     <td class="py-3 px-4">${record.date}</td>
                     <td class="py-3 px-4">${record.teamName}</td>
-                    <td class="py-3 px-4 text-center font-bold">${record.score}</td>
+                    <td class="py-3 px-4 text-center">
+                        <span class="${typeClass} font-bold">${typeText}</span>
+                    </td>
+                    <td class="py-3 px-4 text-center font-bold">${Math.abs(record.score)}</td>
                     <td class="py-3 px-4">${record.notes}</td>
                     <td class="py-3 px-4 text-center">
                         <div class="admin-only">
@@ -1319,7 +1215,7 @@
 
         // Update team select options
         function updateTeamSelects() {
-            const selects = ['team1Select', 'team2Select', 'unityTeamSelect'];
+            const selects = ['addTeamSelect', 'deductTeamSelect'];
             
             selects.forEach(selectId => {
                 const select = document.getElementById(selectId);
@@ -1327,7 +1223,14 @@
                     // Keep the first option
                     const firstOption = select.querySelector('option');
                     select.innerHTML = '';
-                    select.appendChild(firstOption);
+                    if (firstOption) {
+                        select.appendChild(firstOption);
+                    } else {
+                        const defaultOption = document.createElement('option');
+                        defaultOption.value = '';
+                        defaultOption.textContent = 'เลือกคณะสี';
+                        select.appendChild(defaultOption);
+                    }
                     
                     // Add team options
                     localData.teams.forEach(team => {
@@ -1340,200 +1243,6 @@
             });
         }
 
-        // Edit sport function
-        async function editSport(sportId) {
-            if (userRole !== 'admin') return;
-            
-            const sport = localData.sports.find(s => s.id === sportId);
-            if (!sport) return;
-            
-            const { value: formValues } = await Swal.fire({
-                title: 'แก้ไขชนิดกีฬา',
-                html: `
-                    <div class="grid grid-cols-1 gap-4 text-left">
-                        <div>
-                            <label class="block text-sm font-medium mb-2">ชื่อกีฬา</label>
-                            <input type="text" id="editSportName" class="w-full px-3 py-2 border rounded-lg" value="${sport.name}">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium mb-2">จำนวนทีม</label>
-                            <input type="number" id="editTeamCount" class="w-full px-3 py-2 border rounded-lg" value="${sport.teams}">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium mb-2">จำนวนการแข่งขัน</label>
-                            <input type="number" id="editMatchCount" class="w-full px-3 py-2 border rounded-lg" value="${sport.matches}">
-                        </div>
-                    </div>
-                `,
-                showCancelButton: true,
-                confirmButtonText: 'บันทึก',
-                cancelButtonText: 'ยกเลิก',
-                confirmButtonColor: '#3b82f6',
-                preConfirm: () => {
-                    const name = document.getElementById('editSportName').value;
-                    const teams = parseInt(document.getElementById('editTeamCount').value);
-                    const matches = parseInt(document.getElementById('editMatchCount').value);
-                    
-                    if (!name || !teams || !matches) {
-                        Swal.showValidationMessage('กรุณากรอกข้อมูลให้ครบถ้วน');
-                        return false;
-                    }
-                    
-                    return { name, teams, matches };
-                }
-            });
-
-            if (formValues) {
-                try {
-                    await updateFirebaseDoc('sports', sportId, formValues);
-                    
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'แก้ไขสำเร็จ!',
-                        timer: 1500,
-                        showConfirmButton: false
-                    });
-                } catch (error) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'เกิดข้อผิดพลาด',
-                        text: 'ไม่สามารถแก้ไขข้อมูลได้',
-                        confirmButtonColor: '#3b82f6'
-                    });
-                }
-            }
-        }
-
-        // Delete sport function
-        async function deleteSport(sportId) {
-            if (userRole !== 'admin') return;
-            
-            const sport = localData.sports.find(s => s.id === sportId);
-            if (!sport) return;
-            
-            const result = await Swal.fire({
-                title: 'ต้องการลบชนิดกีฬา?',
-                text: `คุณต้องการลบ "${sport.name}" หรือไม่?`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#ef4444',
-                cancelButtonColor: '#6b7280',
-                confirmButtonText: 'ลบ',
-                cancelButtonText: 'ยกเลิก'
-            });
-
-            if (result.isConfirmed) {
-                try {
-                    await deleteFromFirebase('sports', sportId);
-                    
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'ลบสำเร็จ!',
-                        timer: 1500,
-                        showConfirmButton: false
-                    });
-                } catch (error) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'เกิดข้อผิดพลาด',
-                        text: 'ไม่สามารถลบข้อมูลได้',
-                        confirmButtonColor: '#3b82f6'
-                    });
-                }
-            }
-        }
-
-        // Unity form submission
-        document.getElementById('unityForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            if (userRole !== 'admin') {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'ไม่มีสิทธิ์เข้าถึง',
-                    text: 'เฉพาะผู้ดูแลระบบเท่านั้นที่สามารถบันทึกคะแนนได้',
-                    confirmButtonColor: '#3b82f6'
-                });
-                return;
-            }
-            
-            const teamId = document.getElementById('unityTeamSelect').value;
-            const score = parseInt(document.getElementById('unityScore').value);
-            const notes = document.getElementById('unityNotes').value;
-            
-            if (!teamId || score === null || score === undefined) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'ข้อมูลไม่ครบถ้วน',
-                    text: 'กรุณาเลือกคณะสีและกรอกคะแนน',
-                    confirmButtonColor: '#3b82f6'
-                });
-                return;
-            }
-            
-            if (score < 0 || score > 100) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'คะแนนไม่ถูกต้อง',
-                    text: 'คะแนนต้องอยู่ระหว่าง 0-100',
-                    confirmButtonColor: '#3b82f6'
-                });
-                return;
-            }
-            
-            // Find team
-            const team = localData.teams.find(t => t.id === teamId);
-            if (!team) return;
-            
-            try {
-                // Create unity record
-                const unityRecord = {
-                    date: new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' }),
-                    teamId: teamId,
-                    teamName: team.name,
-                    score: score,
-                    notes: notes || '-',
-                    timestamp: new Date().toISOString()
-                };
-                
-                // Save unity record
-                const recordId = await saveToFirebase('unityHistory', unityRecord);
-                
-                // Update team scores
-                const updatedTeam = {
-                    ...team,
-                    unityScore: team.unityScore + score,
-                    totalScore: team.sportsScore + team.unityScore + score
-                };
-                
-                await updateFirebaseDoc('teams', teamId, updatedTeam);
-                
-                // Clear form
-                clearUnityForm();
-                
-                Swal.fire({
-                    icon: 'success',
-                    title: 'บันทึกคะแนนสำเร็จ!',
-                    text: `บันทึกคะแนนความสามัคคี ${score} คะแนนให้ ${team.name} แล้ว`,
-                    confirmButtonColor: '#3b82f6'
-                });
-            } catch (error) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'เกิดข้อผิดพลาด',
-                    text: 'ไม่สามารถบันทึกคะแนนได้',
-                    confirmButtonColor: '#3b82f6'
-                });
-            }
-        });
-
-        // Clear unity form
-        function clearUnityForm() {
-            document.getElementById('unityTeamSelect').value = '';
-            document.getElementById('unityScore').value = '';
-            document.getElementById('unityNotes').value = '';
-        }
-
         // Delete unity record
         async function deleteUnityRecord(recordId) {
             if (userRole !== 'admin') return;
@@ -1543,7 +1252,7 @@
             
             const result = await Swal.fire({
                 title: 'ต้องการลบบันทึก?',
-                text: `คุณต้องการลบบันทึกคะแนนความสามัคคี ${record.score} คะแนนของ ${record.teamName} หรือไม่?`,
+                text: `คุณต้องการลบบันทึกคะแนนความสามัคคี ${Math.abs(record.score)} คะแนนของ ${record.teamName} หรือไม่?`,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#ef4444',
@@ -1560,7 +1269,7 @@
                         const updatedTeam = {
                             ...team,
                             unityScore: team.unityScore - record.score,
-                            totalScore: team.sportsScore + team.unityScore - record.score
+                            totalScore: (team.sportsScore || 0) + team.unityScore - record.score
                         };
                         
                         await updateFirebaseDoc('teams', record.teamId, updatedTeam);
@@ -1635,8 +1344,8 @@
                         name: formValues.name,
                         color: formValues.color,
                         sportsScore: 0,
-                        unityScore: 0,
-                        totalScore: 0,
+                        unityScore: 1000,
+                        totalScore: 1000,
                         gold: 0,
                         silver: 0,
                         bronze: 0,
@@ -1682,19 +1391,19 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium mb-2">คะแนนกีฬา</label>
-                            <input type="number" id="editSportsScore" class="w-full px-3 py-2 border rounded-lg" value="${team.sportsScore}">
+                            <input type="number" id="editSportsScore" class="w-full px-3 py-2 border rounded-lg" value="${team.sportsScore || 0}">
                         </div>
                         <div>
                             <label class="block text-sm font-medium mb-2">เหรียญทอง</label>
-                            <input type="number" id="editGold" class="w-full px-3 py-2 border rounded-lg" value="${team.gold}">
+                            <input type="number" id="editGold" class="w-full px-3 py-2 border rounded-lg" value="${team.gold || 0}">
                         </div>
                         <div>
                             <label class="block text-sm font-medium mb-2">เหรียญเงิน</label>
-                            <input type="number" id="editSilver" class="w-full px-3 py-2 border rounded-lg" value="${team.silver}">
+                            <input type="number" id="editSilver" class="w-full px-3 py-2 border rounded-lg" value="${team.silver || 0}">
                         </div>
                         <div>
                             <label class="block text-sm font-medium mb-2">เหรียญทองแดง</label>
-                            <input type="number" id="editBronze" class="w-full px-3 py-2 border rounded-lg" value="${team.bronze}">
+                            <input type="number" id="editBronze" class="w-full px-3 py-2 border rounded-lg" value="${team.bronze || 0}">
                         </div>
                     </div>
                 `,
@@ -1850,42 +1559,114 @@
             }, 2000);
         }
 
-        // Placeholder functions for missing features
-        function showAddScheduleModal() {
-            Swal.fire({
-                icon: 'info',
-                title: 'ฟีเจอร์กำลังพัฒนา',
-                text: 'ฟีเจอร์เพิ่มการแข่งขันใหม่กำลังอยู่ในระหว่างการพัฒนา',
-                confirmButtonColor: '#3b82f6'
-            });
-        }
-
-        function showAddSportModal() {
-            Swal.fire({
-                icon: 'info',
-                title: 'ฟีเจอร์กำลังพัฒนา',
-                text: 'ฟีเจอร์เพิ่มชนิดกีฬาใหม่กำลังอยู่ในระหว่างการพัฒนา',
-                confirmButtonColor: '#3b82f6'
-            });
-        }
-
-        function editSchedule(scheduleId) {
+        // System status check function
+        async function checkSystemStatus() {
             if (userRole !== 'admin') return;
+            
             Swal.fire({
-                icon: 'info',
-                title: 'ฟีเจอร์กำลังพัฒนา',
-                text: 'ฟีเจอร์แก้ไขการแข่งขันกำลังอยู่ในระหว่างการพัฒนา',
-                confirmButtonColor: '#3b82f6'
-            });
-        }
-
-        function deleteSchedule(scheduleId) {
-            if (userRole !== 'admin') return;
-            Swal.fire({
-                icon: 'info',
-                title: 'ฟีเจอร์กำลังพัฒนา',
-                text: 'ฟีเจอร์ลบการแข่งขันกำลังอยู่ในระหว่างการพัฒนา',
-                confirmButtonColor: '#3b82f6'
+                title: 'ตรวจสอบสถานะระบบ 🔍',
+                html: `<div class="text-left space-y-3">
+                    <div id="statusCheck" class="text-sm">
+                        <div class="mb-2">🔄 กำลังตรวจสอบ...</div>
+                    </div>
+                </div>`,
+                showConfirmButton: false,
+                allowOutsideClick: false,
+                didOpen: async () => {
+                    const statusDiv = document.getElementById('statusCheck');
+                    let statusHTML = '';
+                    
+                    // Check Firebase connection
+                    statusHTML += `<div class="flex justify-between py-1">
+                        <span>Firebase Connection:</span>
+                        <span class="${isFirebaseReady ? 'text-green-600' : 'text-red-600'}">${isFirebaseReady ? '✅ เชื่อมต่อ' : '❌ ไม่เชื่อมต่อ'}</span>
+                    </div>`;
+                    
+                    // Check Firebase objects
+                    const hasDB = !!window.db;
+                    const hasFirestore = !!window.firestore;
+                    statusHTML += `<div class="flex justify-between py-1">
+                        <span>Firebase Database:</span>
+                        <span class="${hasDB ? 'text-green-600' : 'text-red-600'}">${hasDB ? '✅ พร้อม' : '❌ ไม่พร้อม'}</span>
+                    </div>`;
+                    
+                    statusHTML += `<div class="flex justify-between py-1">
+                        <span>Firestore Functions:</span>
+                        <span class="${hasFirestore ? 'text-green-600' : 'text-red-600'}">${hasFirestore ? '✅ พร้อม' : '❌ ไม่พร้อม'}</span>
+                    </div>`;
+                    
+                    // Check data
+                    statusHTML += `<div class="flex justify-between py-1">
+                        <span>Teams Data:</span>
+                        <span class="text-blue-600">📊 ${localData.teams.length} คณะสี</span>
+                    </div>`;
+                    
+                    statusHTML += `<div class="flex justify-between py-1">
+                        <span>Unity Records:</span>
+                        <span class="text-blue-600">📝 ${localData.unityHistory.length} รายการ</span>
+                    </div>`;
+                    
+                    // Test Firebase write
+                    if (isFirebaseReady && hasDB && hasFirestore) {
+                        statusHTML += `<div class="flex justify-between py-1">
+                            <span>Firebase Write Test:</span>
+                            <span class="text-yellow-600">🔄 กำลังทดสอบ...</span>
+                        </div>`;
+                        
+                        statusDiv.innerHTML = statusHTML;
+                        
+                        try {
+                            const testData = {
+                                test: true,
+                                timestamp: new Date().toISOString()
+                            };
+                            
+                            await saveToFirebase('systemTest', testData, 'test_' + Date.now());
+                            
+                            statusHTML = statusHTML.replace(
+                                '<span class="text-yellow-600">🔄 กำลังทดสอบ...</span>',
+                                '<span class="text-green-600">✅ สำเร็จ</span>'
+                            );
+                            
+                            // Clean up test document
+                            try {
+                                await deleteFromFirebase('systemTest', 'test_' + Date.now());
+                            } catch (e) {
+                                console.log('Test cleanup failed (normal)');
+                            }
+                            
+                        } catch (error) {
+                            statusHTML = statusHTML.replace(
+                                '<span class="text-yellow-600">🔄 กำลังทดสอบ...</span>',
+                                `<span class="text-red-600">❌ ล้มเหลว</span>`
+                            );
+                            
+                            statusHTML += `<div class="mt-3 p-2 bg-red-100 rounded text-red-800 text-xs">
+                                <strong>Error:</strong> ${error.message}
+                            </div>`;
+                        }
+                    }
+                    
+                    // Performance info
+                    statusHTML += `<div class="mt-3 pt-3 border-t border-gray-200">
+                        <div class="text-xs text-gray-600">
+                            <div>User Agent: ${navigator.userAgent.split(' ').slice(-2).join(' ')}</div>
+                            <div>Connection: ${navigator.onLine ? 'Online' : 'Offline'}</div>
+                            <div>Last Update: ${new Date().toLocaleTimeString('th-TH')}</div>
+                        </div>
+                    </div>`;
+                    
+                    statusDiv.innerHTML = statusHTML;
+                    
+                    // Add close button after 2 seconds
+                    setTimeout(() => {
+                        Swal.update({
+                            showConfirmButton: true,
+                            confirmButtonText: 'ปิด',
+                            confirmButtonColor: '#3b82f6'
+                        });
+                    }, 2000);
+                }
             });
         }
 
@@ -1901,11 +1682,12 @@
             // Initialize Firebase status as disconnected
             updateFirebaseStatus(false);
             
-            // Try to initialize Firebase data if already ready
-            if (window.db && window.firestore) {
-                window.initializeFirebaseData();
-            }
+            // Load initial data
+            loadTeamsData();
+            loadUnityData();
+            updateDashboard();
+            updateExportSummary();
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98659054803f7b6a',t:'MTc1OTA4Njg2Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9865b4e594717b42',t:'MTc1OTA4ODM2NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
