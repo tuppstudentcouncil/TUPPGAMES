@@ -53,32 +53,100 @@
             font-family: 'Anuphan', sans-serif;
         }
         .gradient-bg {
-            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 25%, #0ea5e9 50%, #38bdf8 75%, #7dd3fc 100%);
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 20%, #f1f5f9 40%, #e2e8f0 60%, #cbd5e1 80%, #94a3b8 100%);
+            animation: gradientShift 15s ease infinite;
         }
+        
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 53%, 80%, 100% { transform: translateY(0); }
+            40%, 43% { transform: translateY(-10px); }
+            70% { transform: translateY(-5px); }
+        }
+        
         .card-hover {
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: fadeInUp 0.6s ease-out;
         }
         .card-hover:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
         }
+        
         .nav-item {
-            transition: all 0.3s ease;
+            transition: background-color 0.2s ease;
         }
         .nav-item:hover {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(59, 130, 246, 0.1);
             border-radius: 8px;
         }
         .active-nav {
-            background: rgba(255, 255, 255, 0.3);
+            background: rgba(59, 130, 246, 0.15);
             border-radius: 8px;
         }
+        
         .sport-card {
-            background: linear-gradient(45deg, #3b82f6, #1e40af);
+            background: linear-gradient(45deg, #3b82f6, #8b5cf6);
+            animation: slideInLeft 0.8s ease-out;
         }
         .team-card {
-            background: linear-gradient(45deg, #0ea5e9, #0284c7);
+            background: linear-gradient(45deg, #ec4899, #f59e0b);
+            animation: slideInRight 0.8s ease-out;
         }
+        
         .firebase-status {
             position: fixed;
             top: 20px;
@@ -88,20 +156,91 @@
             border-radius: 20px;
             font-size: 12px;
             font-weight: bold;
+            transition: all 0.3s ease;
+            animation: slideInRight 0.5s ease-out;
+        }
+        .firebase-status:hover {
+            transform: scale(1.05);
         }
         .firebase-connected {
             background: #10b981;
             color: white;
+            animation: bounce 1s ease-out;
         }
         .firebase-disconnected {
             background: #ef4444;
             color: white;
+            animation: pulse 2s infinite;
         }
+        
         .admin-text {
             display: none;
         }
         .guest-text {
             display: none;
+        }
+        
+        /* Header animations */
+        header {
+            animation: slideInLeft 0.8s ease-out;
+        }
+        
+        /* Stats cards staggered animation */
+        .stats-card:nth-child(1) { animation: fadeInUp 0.6s ease-out 0.1s both; }
+        .stats-card:nth-child(2) { animation: fadeInUp 0.6s ease-out 0.2s both; }
+        .stats-card:nth-child(3) { animation: fadeInUp 0.6s ease-out 0.3s both; }
+        .stats-card:nth-child(4) { animation: fadeInUp 0.6s ease-out 0.4s both; }
+        
+        /* Button hover effects */
+        button {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        
+        /* Form input animations */
+        input, select, textarea {
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        /* Modal animations */
+        .modal-content {
+            animation: scaleIn 0.3s ease-out;
+        }
+        
+        /* Table row hover */
+        tr {
+            transition: background-color 0.2s ease;
+        }
+        tr:hover {
+            background-color: rgba(59, 130, 246, 0.05) !important;
+        }
+        
+        /* Loading spinner */
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .loading-spinner {
+            animation: spin 1s linear infinite;
+        }
+        
+        /* Ranking items animation */
+        .ranking-item {
+            animation: slideInLeft 0.5s ease-out;
+            transition: background-color 0.2s ease;
+        }
+        .ranking-item:hover {
+            background-color: rgba(255, 255, 255, 0.9) !important;
+        }
+        
+        /* Chart container animation */
+        .chart-container {
+            animation: fadeInUp 0.8s ease-out 0.5s both;
         }
     </style>
 </head>
@@ -112,39 +251,39 @@
     </div>
 
     <!-- Login Modal -->
-    <div id="loginModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-        <div class="bg-white/20 backdrop-blur-md rounded-2xl p-8 w-full max-w-md mx-4">
+    <div id="loginModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
+        <div class="modal-content bg-white/95 backdrop-blur-md rounded-2xl p-8 w-full max-w-md mx-4 shadow-2xl border border-white/50">
             <div class="text-center mb-8">
                 <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
                     <i class="fas fa-trophy text-4xl text-blue-600"></i>
                 </div>
-                <h2 class="text-white text-2xl font-bold mb-2">เข้าสู่ระบบ</h2>
-                <p class="text-white/80">ระบบรายงานผลการแข่งขันกีฬาภายใน</p>
-                <p class="text-white/60 text-sm mt-2">🔥 เชื่อมต่อ Firebase - ข้อมูลซิงค์แบบเรียลไทม์</p>
+                <h2 class="text-gray-800 text-2xl font-bold mb-2">เข้าสู่ระบบ</h2>
+                <p class="text-gray-600">ระบบรายงานผลการแข่งขันกีฬาภายใน</p>
+                <p class="text-gray-500 text-sm mt-2">หมวดความสามัคคีภายในคณะสี</p>
             </div>
             
             <form id="loginForm" class="space-y-6">
                 <div>
-                    <label class="block text-white text-sm font-medium mb-2">ชื่อผู้ใช้</label>
-                    <input type="text" id="username" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="กรอกชื่อผู้ใช้">
+                    <label class="block text-gray-700 text-sm font-medium mb-2">ชื่อผู้ใช้</label>
+                    <input type="text" id="username" class="w-full px-4 py-3 rounded-lg bg-white border border-gray-200 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="กรอกชื่อผู้ใช้">
                 </div>
                 
                 <div>
-                    <label class="block text-white text-sm font-medium mb-2">รหัสผ่าน</label>
-                    <input type="password" id="password" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="กรอกรหัสผ่าน">
+                    <label class="block text-gray-700 text-sm font-medium mb-2">รหัสผ่าน</label>
+                    <input type="password" id="password" class="w-full px-4 py-3 rounded-lg bg-white border border-gray-200 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="กรอกรหัสผ่าน">
                 </div>
                 
-                <button type="submit" class="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white py-3 rounded-lg font-medium transition-all">
+                <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white py-3 rounded-lg font-medium transition-all shadow-lg">
                     <i class="fas fa-sign-in-alt mr-2"></i>เข้าสู่ระบบ
                 </button>
                 
-                <button type="button" onclick="guestLogin()" class="w-full bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white py-3 rounded-lg font-medium transition-all">
-                    <i class="fas fa-eye mr-2"></i>เข้าชมเป็นผู้เยี่ยมชม
+                <button type="button" onclick="guestLogin()" class="w-full bg-gradient-to-r from-slate-500 to-slate-600 hover:from-slate-600 hover:to-slate-700 text-white py-3 rounded-lg font-medium transition-all shadow-lg">
+                    <i class="fas fa-eye mr-2"></i>เข้าใช้งานในฐานะผู้เยี่ยมชม
                 </button>
             </form>
             
             <div class="mt-6 text-center">
-                <p class="text-white/60 text-sm">Admin: แก้ไขข้อมูลได้ | ผู้เยี่ยมชม: ดูข้อมูลอย่างเดียว</p>
+                <p class="text-gray-500 text-sm">Admin: แก้ไขข้อมูลได้ | ผู้เยี่ยมชม: ดูเท่านั้น</p>
             </div>
         </div>
     </div>
@@ -152,28 +291,29 @@
     <!-- Main App (Hidden initially) -->
     <div id="mainApp" class="hidden">
     <!-- Header -->
-    <header class="bg-white/10 backdrop-blur-md shadow-lg sticky top-0 z-50">
+    <header class="bg-white/90 backdrop-blur-md shadow-lg sticky top-0 z-50 border-b border-gray-200">
         <div class="container mx-auto px-4 py-4">
             <div class="flex flex-col md:flex-row items-center justify-between">
                 <div class="flex items-center space-x-4 mb-4 md:mb-0">
-                    <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center">
-                        <i class="fas fa-trophy text-2xl text-purple-600"></i>
+                    <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg">
+                        <i class="fas fa-trophy text-2xl text-indigo-600"></i>
                     </div>
                     <div>
-                        <h1 class="text-white text-xl md:text-2xl font-bold">ระบบรายงานผลการแข่งขันกีฬาภายใน</h1>
-                        <p class="text-white/80 text-sm">โรงเรียนเตรียมอุดมศึกษาพัฒนาการสุวรรณภูมิ</p>
+                        <h1 class="text-gray-800 text-xl md:text-2xl font-bold">ระบบรายงานผลการแข่งขันกีฬาภายใน</h1>
+                        <p class="text-gray-600 text-sm">โรงเรียนเตรียมอุดมศึกษาพัฒนาการสุวรรณภูมิ</p>
                     </div>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <div class="text-white text-right">
+                    <div class="text-gray-700 text-right">
                         <p class="text-sm">ผู้ใช้: <span id="currentUser">Admin</span></p>
-                        <p class="text-xs text-white/70">เข้าสู่ระบบ: <span id="loginTime">10:30 น.</span></p>
+                        <p class="text-xs text-gray-500">เข้าสู่ระบบ: <span id="loginTime">10:30 น.</span></p>
                     </div>
                     <div class="flex space-x-2">
-                        <button class="bg-blue-500/20 hover:bg-blue-500/30 text-white px-3 py-2 rounded-lg transition-all text-sm admin-only" onclick="checkSystemStatus()" title="ตรวจสอบระบบ">
+                        <button class="bg-indigo-500 hover:bg-indigo-600 text-white px-3 py-2 rounded-lg transition-all text-sm admin-only shadow-lg" onclick="checkSystemStatus()" title="ตรวจสอบระบบ">
                             <i class="fas fa-stethoscope"></i>
                         </button>
-                        <button class="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg transition-all" onclick="logout()">
+
+                        <button class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-all shadow-lg" onclick="logout()">
                             <i class="fas fa-sign-out-alt mr-2"></i>ออกจากระบบ
                         </button>
                     </div>
@@ -183,20 +323,23 @@
     </header>
 
     <!-- Navigation -->
-    <nav class="bg-white/10 backdrop-blur-md border-b border-white/20">
+    <nav class="bg-white/80 backdrop-blur-md border-b border-gray-200">
         <div class="container mx-auto px-4">
             <div class="flex flex-wrap justify-center md:justify-start space-x-2 md:space-x-6 py-3">
-                <button class="nav-item active-nav text-white px-4 py-2 text-sm md:text-base" onclick="showSection('dashboard')">
-                    <i class="fas fa-chart-line mr-2"></i>แดชบอร์ด
+                <button class="nav-item active-nav text-gray-700 px-4 py-2 text-sm md:text-base" onclick="showSection('dashboard')">
+                    <i class="fas fa-chart-line mr-2 text-blue-500"></i>แดชบอร์ด
                 </button>
-                <button id="unityNav" class="nav-item text-white px-4 py-2 text-sm md:text-base" onclick="showSection('unity')">
-                    <i class="fas fa-heart mr-2"></i><span class="admin-text">จัดการ</span><span class="guest-text">ประวัติ</span>คะแนนความสามัคคี
+                <button id="unityNav" class="nav-item text-gray-700 px-4 py-2 text-sm md:text-base" onclick="showSection('unity')">
+                    <i class="fas fa-heart mr-2 text-red-500"></i><span class="admin-text">จัดการ</span><span class="guest-text">บันทึก</span>การเปลี่ยนแปลงของคะแนน
                 </button>
-                <button id="teamsNav" class="nav-item text-white px-4 py-2 text-sm md:text-base admin-only" onclick="showSection('teams')">
-                    <i class="fas fa-users mr-2"></i>จัดการคณะสี
+                <button id="teamsNav" class="nav-item text-gray-700 px-4 py-2 text-sm md:text-base admin-only" onclick="showSection('teams')">
+                    <i class="fas fa-users mr-2 text-green-500"></i>จัดการคณะสี
                 </button>
-                <button id="exportNav" class="nav-item text-white px-4 py-2 text-sm md:text-base admin-only" onclick="showSection('export')">
-                    <i class="fas fa-download mr-2"></i>ดาวน์โหลดรายงาน
+                <button id="exportNav" class="nav-item text-gray-700 px-4 py-2 text-sm md:text-base admin-only" onclick="showSection('export')">
+                    <i class="fas fa-download mr-2 text-purple-500"></i>ดาวน์โหลดรายงาน
+                </button>
+                <button id="infoNav" class="nav-item text-gray-700 px-4 py-2 text-sm md:text-base" onclick="showSection('info')">
+                    <i class="fas fa-info-circle mr-2 text-orange-500"></i>ข้อมูลและติดต่อ
                 </button>
             </div>
         </div>
@@ -208,49 +351,49 @@
         <div id="dashboard" class="section">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <!-- Stats Cards -->
-                <div class="bg-white/20 backdrop-blur-md rounded-xl p-6 card-hover">
+                <div class="stats-card bg-white/95 backdrop-blur-md rounded-xl p-6 card-hover shadow-xl border border-gray-200">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-white/80 text-sm">คณะสีทั้งหมด</p>
-                            <p class="text-white text-3xl font-bold" id="totalTeams">4</p>
+                            <p class="text-gray-700 text-sm font-medium">คณะสีทั้งหมด</p>
+                            <p class="text-gray-900 text-3xl font-bold" id="totalTeams">4</p>
                         </div>
-                        <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
+                        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-lg">
                             <i class="fas fa-users text-white text-xl"></i>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-white/20 backdrop-blur-md rounded-xl p-6 card-hover">
+                <div class="stats-card bg-white/95 backdrop-blur-md rounded-xl p-6 card-hover shadow-xl border border-gray-200">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-white/80 text-sm">คะแนนเฉลี่ย</p>
-                            <p class="text-white text-3xl font-bold" id="avgScore">1002.5</p>
+                            <p class="text-gray-700 text-sm font-medium">คะแนนเฉลี่ย</p>
+                            <p class="text-gray-900 text-3xl font-bold" id="avgScore">1002.5</p>
                         </div>
-                        <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
+                        <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center shadow-lg">
                             <i class="fas fa-chart-line text-white text-xl"></i>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-white/20 backdrop-blur-md rounded-xl p-6 card-hover">
+                <div class="stats-card bg-white/95 backdrop-blur-md rounded-xl p-6 card-hover shadow-xl border border-gray-200">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-white/80 text-sm">คะแนนสูงสุด</p>
-                            <p class="text-white text-3xl font-bold" id="maxScore">1030</p>
+                            <p class="text-gray-700 text-sm font-medium">คะแนนสูงสุด</p>
+                            <p class="text-gray-900 text-3xl font-bold" id="maxScore">1030</p>
                         </div>
-                        <div class="w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center">
+                        <div class="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-full flex items-center justify-center shadow-lg">
                             <i class="fas fa-trophy text-white text-xl"></i>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-white/20 backdrop-blur-md rounded-xl p-6 card-hover">
+                <div class="stats-card bg-white/95 backdrop-blur-md rounded-xl p-6 card-hover shadow-xl border border-gray-200">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-white/80 text-sm">รายการทั้งหมด</p>
-                            <p class="text-white text-3xl font-bold" id="totalRecords">4</p>
+                            <p class="text-gray-700 text-sm font-medium">รายการเพิ่มและหักคะแนนทั้งหมด</p>
+                            <p class="text-gray-900 text-3xl font-bold" id="totalRecords">4</p>
                         </div>
-                        <div class="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center">
+                        <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
                             <i class="fas fa-list text-white text-xl"></i>
                         </div>
                     </div>
@@ -259,13 +402,13 @@
 
             <!-- Unity Score Chart and Ranking -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div class="bg-white/20 backdrop-blur-md rounded-xl p-6">
-                    <h3 class="text-white text-xl font-bold mb-4">คะแนนความสามัคคีแต่ละคณะสี</h3>
+                <div class="chart-container bg-white/95 backdrop-blur-md rounded-xl p-6 shadow-xl border border-gray-200">
+                    <h3 class="text-gray-900 text-xl font-bold mb-4">คะแนนความสามัคคีแต่ละคณะสี</h3>
                     <canvas id="unityChart" width="400" height="300"></canvas>
                 </div>
 
-                <div class="bg-white/20 backdrop-blur-md rounded-xl p-6">
-                    <h3 class="text-white text-xl font-bold mb-4">อันดับคะแนนความสามัคคี</h3>
+                <div class="chart-container bg-white/95 backdrop-blur-md rounded-xl p-6 shadow-xl border border-gray-200">
+                    <h3 class="text-gray-900 text-xl font-bold mb-4">อันดับคะแนนความสามัคคี</h3>
                     <div id="unityRanking" class="space-y-4">
                         <!-- Unity ranking will be loaded here -->
                     </div>
@@ -275,12 +418,12 @@
 
         <!-- Teams Management Section -->
         <div id="teams" class="section hidden">
-            <div class="bg-white/20 backdrop-blur-md rounded-xl p-8">
+            <div class="bg-white/90 backdrop-blur-md rounded-xl p-8 shadow-xl border border-gray-100">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-                    <h2 class="text-white text-2xl font-bold mb-4 md:mb-0">
-                        <i class="fas fa-users mr-3"></i>จัดการคณะสี
+                    <h2 class="text-gray-800 text-2xl font-bold mb-4 md:mb-0">
+                        <i class="fas fa-users mr-3 text-green-500"></i>จัดการคณะสี
                     </h2>
-                    <button class="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white px-6 py-3 rounded-lg transition-all admin-only" onclick="showAddTeamModal()">
+                    <button class="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-6 py-3 rounded-lg transition-all admin-only shadow-lg" onclick="showAddTeamModal()">
                         <i class="fas fa-plus mr-2"></i>เพิ่มคณะสี
                     </button>
                 </div>
@@ -293,34 +436,34 @@
 
         <!-- Unity Score Section -->
         <div id="unity" class="section hidden">
-            <div class="bg-white/20 backdrop-blur-md rounded-xl p-8">
-                <h2 class="text-white text-2xl font-bold mb-6">
-                    <i class="fas fa-heart mr-3"></i><span class="admin-text">จัดการ</span><span class="guest-text">ประวัติ</span>คะแนนความสามัคคี
+            <div class="bg-white/95 backdrop-blur-md rounded-xl p-8 border border-gray-200">
+                <h2 class="text-gray-900 text-2xl font-bold mb-6">
+                    <i class="fas fa-heart mr-3 text-red-500"></i><span class="admin-text">จัดการ</span><span class="guest-text">ระบบ</span>การเพิ่มและหักคะแนน
                 </h2>
                 
                 <!-- Add/Deduct Score Buttons -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                    <div class="bg-green-500/20 rounded-xl p-6 border border-green-500/30">
-                        <h3 class="text-white text-lg font-bold mb-4">
-                            <i class="fas fa-plus-circle mr-2 text-green-400"></i>เพิ่มคะแนน
+                    <div class="bg-green-50 rounded-xl p-6 border border-green-200">
+                        <h3 class="text-gray-900 text-lg font-bold mb-4">
+                            <i class="fas fa-plus-circle mr-2 text-green-600"></i>เพิ่มคะแนน
                         </h3>
                         <div class="admin-only">
                             <form id="addScoreForm" class="space-y-4">
                                 <div>
-                                    <label class="block text-white text-sm font-medium mb-2">คณะสี</label>
-                                    <select id="addTeamSelect" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-green-500">
+                                    <label class="block text-gray-900 text-sm font-medium mb-2">คณะสี</label>
+                                    <select id="addTeamSelect" class="w-full px-4 py-3 rounded-lg bg-white border border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500">
                                         <option value="">เลือกคณะสี</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="block text-white text-sm font-medium mb-2">คะแนนที่เพิ่ม</label>
-                                    <input type="number" id="addScore" min="1" max="100" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="1-100">
+                                    <label class="block text-gray-900 text-sm font-medium mb-2">คะแนนที่เพิ่ม</label>
+                                    <input type="number" id="addScore" min="1" max="100" class="w-full px-4 py-3 rounded-lg bg-white border border-gray-300 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="1-100">
                                 </div>
                                 <div>
-                                    <label class="block text-white text-sm font-medium mb-2">เหตุผล</label>
-                                    <textarea id="addNotes" rows="2" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="เหตุผลในการเพิ่มคะแนน"></textarea>
+                                    <label class="block text-gray-900 text-sm font-medium mb-2">เหตุผล</label>
+                                    <textarea id="addNotes" rows="2" class="w-full px-4 py-3 rounded-lg bg-white border border-gray-300 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="เหตุผลในการเพิ่มคะแนน"></textarea>
                                 </div>
-                                <button type="submit" class="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg transition-all">
+                                <button type="submit" class="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white py-3 rounded-lg transition-all shadow-lg">
                                     <i class="fas fa-plus mr-2"></i>เพิ่มคะแนน
                                 </button>
                             </form>
@@ -328,47 +471,47 @@
                         <div class="guest-only">
                             <div class="space-y-4">
                                 <div>
-                                    <label class="block text-white/60 text-sm font-medium mb-2">คณะสี</label>
-                                    <select disabled class="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white/50 cursor-not-allowed">
+                                    <label class="block text-gray-600 text-sm font-medium mb-2">คณะสี</label>
+                                    <select disabled class="w-full px-4 py-3 rounded-lg bg-gray-100 border border-gray-300 text-gray-500 cursor-not-allowed">
                                         <option>เฉพาะ Admin เท่านั้น</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="block text-white/60 text-sm font-medium mb-2">คะแนนที่เพิ่ม</label>
-                                    <input type="number" disabled class="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white/50 cursor-not-allowed" placeholder="เฉพาะ Admin">
+                                    <label class="block text-gray-600 text-sm font-medium mb-2">คะแนนที่เพิ่ม</label>
+                                    <input type="number" disabled class="w-full px-4 py-3 rounded-lg bg-gray-100 border border-gray-300 text-gray-500 cursor-not-allowed" placeholder="เฉพาะ Admin">
                                 </div>
                                 <div>
-                                    <label class="block text-white/60 text-sm font-medium mb-2">เหตุผล</label>
-                                    <textarea disabled rows="2" class="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white/50 cursor-not-allowed" placeholder="เฉพาะ Admin เท่านั้น"></textarea>
+                                    <label class="block text-gray-600 text-sm font-medium mb-2">เหตุผล</label>
+                                    <textarea disabled rows="2" class="w-full px-4 py-3 rounded-lg bg-gray-100 border border-gray-300 text-gray-500 cursor-not-allowed" placeholder="เฉพาะ Admin เท่านั้น"></textarea>
                                 </div>
-                                <button disabled class="w-full bg-gray-500/50 text-white/50 py-3 rounded-lg cursor-not-allowed">
+                                <button disabled class="w-full bg-gray-400 text-gray-600 py-3 rounded-lg cursor-not-allowed">
                                     <i class="fas fa-lock mr-2"></i>เฉพาะ Admin เท่านั้น
                                 </button>
                             </div>
                         </div>
                     </div>
 
-                    <div class="bg-red-500/20 rounded-xl p-6 border border-red-500/30">
-                        <h3 class="text-white text-lg font-bold mb-4">
-                            <i class="fas fa-minus-circle mr-2 text-red-400"></i>หักคะแนน
+                    <div class="bg-red-50 rounded-xl p-6 border border-red-200">
+                        <h3 class="text-gray-900 text-lg font-bold mb-4">
+                            <i class="fas fa-minus-circle mr-2 text-red-600"></i>หักคะแนน
                         </h3>
                         <div class="admin-only">
                             <form id="deductScoreForm" class="space-y-4">
                                 <div>
-                                    <label class="block text-white text-sm font-medium mb-2">คณะสี</label>
-                                    <select id="deductTeamSelect" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-red-500">
+                                    <label class="block text-gray-900 text-sm font-medium mb-2">คณะสี</label>
+                                    <select id="deductTeamSelect" class="w-full px-4 py-3 rounded-lg bg-white border border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-red-500">
                                         <option value="">เลือกคณะสี</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="block text-white text-sm font-medium mb-2">คะแนนที่หัก</label>
-                                    <input type="number" id="deductScore" min="1" max="100" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="1-100">
+                                    <label class="block text-gray-900 text-sm font-medium mb-2">คะแนนที่หัก</label>
+                                    <input type="number" id="deductScore" min="1" max="100" class="w-full px-4 py-3 rounded-lg bg-white border border-gray-300 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="1-100">
                                 </div>
                                 <div>
-                                    <label class="block text-white text-sm font-medium mb-2">เหตุผล</label>
-                                    <textarea id="deductNotes" rows="2" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="เหตุผลในการหักคะแนน"></textarea>
+                                    <label class="block text-gray-900 text-sm font-medium mb-2">เหตุผล</label>
+                                    <textarea id="deductNotes" rows="2" class="w-full px-4 py-3 rounded-lg bg-white border border-gray-300 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="เหตุผลในการหักคะแนน"></textarea>
                                 </div>
-                                <button type="submit" class="w-full bg-red-500 hover:bg-red-600 text-white py-3 rounded-lg transition-all">
+                                <button type="submit" class="w-full bg-gradient-to-r from-slate-600 to-slate-800 hover:from-slate-700 hover:to-slate-900 text-white py-3 rounded-lg transition-all shadow-lg">
                                     <i class="fas fa-minus mr-2"></i>หักคะแนน
                                 </button>
                             </form>
@@ -376,20 +519,20 @@
                         <div class="guest-only">
                             <div class="space-y-4">
                                 <div>
-                                    <label class="block text-white/60 text-sm font-medium mb-2">คณะสี</label>
-                                    <select disabled class="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white/50 cursor-not-allowed">
+                                    <label class="block text-gray-600 text-sm font-medium mb-2">คณะสี</label>
+                                    <select disabled class="w-full px-4 py-3 rounded-lg bg-gray-100 border border-gray-300 text-gray-500 cursor-not-allowed">
                                         <option>เฉพาะ Admin เท่านั้น</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="block text-white/60 text-sm font-medium mb-2">คะแนนที่หัก</label>
-                                    <input type="number" disabled class="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white/50 cursor-not-allowed" placeholder="เฉพาะ Admin">
+                                    <label class="block text-gray-600 text-sm font-medium mb-2">คะแนนที่หัก</label>
+                                    <input type="number" disabled class="w-full px-4 py-3 rounded-lg bg-gray-100 border border-gray-300 text-gray-500 cursor-not-allowed" placeholder="เฉพาะ Admin">
                                 </div>
                                 <div>
-                                    <label class="block text-white/60 text-sm font-medium mb-2">เหตุผล</label>
-                                    <textarea disabled rows="2" class="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white/50 cursor-not-allowed" placeholder="เฉพาะ Admin เท่านั้น"></textarea>
+                                    <label class="block text-gray-600 text-sm font-medium mb-2">เหตุผล</label>
+                                    <textarea disabled rows="2" class="w-full px-4 py-3 rounded-lg bg-gray-100 border border-gray-300 text-gray-500 cursor-not-allowed" placeholder="เฉพาะ Admin เท่านั้น"></textarea>
                                 </div>
-                                <button disabled class="w-full bg-gray-500/50 text-white/50 py-3 rounded-lg cursor-not-allowed">
+                                <button disabled class="w-full bg-gray-400 text-gray-600 py-3 rounded-lg cursor-not-allowed">
                                     <i class="fas fa-lock mr-2"></i>เฉพาะ Admin เท่านั้น
                                 </button>
                             </div>
@@ -398,18 +541,18 @@
                 </div>
 
                 <!-- Unity Score History -->
-                <div class="bg-white/10 rounded-xl p-6">
-                    <h3 class="text-white text-lg font-bold mb-4">ประวัติการจัดการคะแนนความสามัคคี</h3>
+                <div class="bg-white/95 rounded-xl p-6 border border-gray-200">
+                    <h3 class="text-gray-900 text-lg font-bold mb-4">บันทึกการเพิ่มแลกหักคะแนน</h3>
                     <div class="overflow-x-auto">
-                        <table class="w-full text-white">
+                        <table class="w-full">
                             <thead>
-                                <tr class="border-b border-white/20">
-                                    <th class="text-left py-3 px-4">วันที่</th>
-                                    <th class="text-left py-3 px-4">คณะสี</th>
-                                    <th class="text-center py-3 px-4">ประเภท</th>
-                                    <th class="text-center py-3 px-4">คะแนน</th>
-                                    <th class="text-left py-3 px-4">เหตุผล</th>
-                                    <th class="text-center py-3 px-4">จัดการ</th>
+                                <tr class="border-b border-gray-300 bg-gray-100">
+                                    <th class="text-left py-3 px-4 font-bold text-gray-900">วันที่</th>
+                                    <th class="text-left py-3 px-4 font-bold text-gray-900">คณะสี</th>
+                                    <th class="text-center py-3 px-4 font-bold text-gray-900">ประเภท</th>
+                                    <th class="text-center py-3 px-4 font-bold text-gray-900">คะแนน</th>
+                                    <th class="text-left py-3 px-4 font-bold text-gray-900">เหตุผล</th>
+                                    <th class="text-center py-3 px-4 font-bold text-gray-900">จัดการ</th>
                                 </tr>
                             </thead>
                             <tbody id="unityHistoryTable">
@@ -421,52 +564,125 @@
             </div>
         </div>
 
+        <!-- Info and Contact Section -->
+        <div id="info" class="section hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Developer Info Card -->
+                <div class="bg-white/95 backdrop-blur-md rounded-xl p-8 shadow-xl border border-gray-200">
+                    <div class="text-center">
+                        <div class="w-20 h-20 bg-gradient-to-r from-purple-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                            <i class="fas fa-user-tie text-3xl text-white"></i>
+                        </div>
+                        <h3 class="text-gray-900 text-2xl font-bold mb-3">ข้อมูลผู้จัดทำเว็บไซต์</h3>
+                        
+                        <div class="bg-gradient-to-r from-purple-100 to-blue-100 rounded-xl p-6 mb-6 border border-purple-200">
+                            <h4 class="text-gray-900 text-xl font-bold mb-2">นายเจตต์นิภัทธ์ เบ็ญจมิตรกุล</h4>
+                            <p class="text-gray-700 text-sm mb-2">หัวหน้าฝ่ายพัฒนาสารสนเทศ สภานักเรียน</p>
+                            <p class="text-gray-600 text-xs">ประจำปีการศึกษา 2568</p>
+                        </div>
+                        
+                        <div class="bg-gray-100 rounded-xl p-4 mb-6">
+                            <h5 class="text-gray-900 font-bold mb-2">โรงเรียนเตรียมอุดมศึกษาพัฒนาการสุวรรณภูมิ</h5>
+                            <p class="text-gray-700 text-sm">ระบบรายงานผลการแข่งขันกีฬาภายใน หมวดความสามัคคีภายในคณะสี</p>
+                        </div>
+                        
+                        <button onclick="window.open('https://www.instagram.com/jx._niphxt/', '_blank', 'noopener,noreferrer')" 
+                                class="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-6 py-3 rounded-lg transition-all shadow-lg w-full">
+                            <i class="fab fa-instagram mr-2"></i>ติดตาม Instagram
+                        </button>
+                        
+                        <div class="mt-4 text-xs text-gray-600">
+                            <p>สวัสดี เราชื่อซัคเซสนะ หลาย ๆ คนอาจจะเห็นหลายโปรเจกต์ที่เราทำให้สภาฯ เนอะ</p>
+                            <p>เราขอขอบคุณทุกคนที่ชื่นชอบ และเข้ามาใช้งานกันอย่างม้ากกกมายนะ 😊</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Complaint Info Card -->
+                <div class="bg-white/95 backdrop-blur-md rounded-xl p-8 shadow-xl border border-gray-200">
+                    <div class="text-center">
+                        <div class="w-20 h-20 bg-gradient-to-r from-orange-500 to-red-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                            <i class="fas fa-exclamation-triangle text-3xl text-white"></i>
+                        </div>
+                        <h3 class="text-gray-900 text-2xl font-bold mb-3">ร้องเรียน / คัดค้าน</h3>
+                        
+                        <div class="bg-gradient-to-r from-orange-100 to-red-100 rounded-xl p-6 mb-6 border border-orange-200">
+                            <h4 class="text-gray-900 text-lg font-bold mb-2">📱 Line Official Account</h4>
+                            <p class="text-gray-700 text-sm">สภานักเรียน โรงเรียนเตรียมอุดมศึกษาพัฒนาการสุวรรณภูมิ</p>
+                        </div>
+                        
+                        <div class="bg-gray-100 rounded-xl p-4 mb-6">
+                            <p class="text-gray-700 text-sm mb-0">
+                                หากมีข้อสงสัย คัดค้าน หรือต้องการร้องเรียนใด ๆ<br>
+                                สามารถติดต่อผ่าน Line Official Account ของสภานักเรียนได้เลยคั้บบ
+                            </p>
+                        </div>
+                        
+                        <button onclick="window.open('https://lin.ee/piZEJBE', '_blank', 'noopener,noreferrer')" 
+                                class="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-6 py-3 rounded-lg transition-all shadow-lg w-full mb-4">
+                            <i class="fab fa-line mr-2"></i>Line Official Account
+                        </button>
+                        
+                        <div class="bg-blue-50 rounded-xl p-4 border border-blue-200">
+                            <h5 class="text-gray-900 font-bold mb-2">หมายเหตุ ℹ️</h5>
+                            <ul class="text-gray-700 text-sm text-left space-y-1">
+                                <li>• ระบุชื่อ-นามสกุล และชั้นเรียนให้ชัดเจน</li>
+                                <li>• แนบหลักฐานประกอบ (ถ้ามี)</li>
+                                <li>• ใช้ภาษาที่สุภาพและสร้างสรรค์</li>
+                                <li>• ทางสภานักเรียนจะรับเรื่อง และส่งเรื่องไปยังคุณครูที่เกี่ยวข้องในการตรวจสอบต่อไป</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Export Section -->
         <div id="export" class="section hidden">
-            <div class="bg-white/20 backdrop-blur-md rounded-xl p-8">
-                <h2 class="text-white text-2xl font-bold mb-6">
-                    <i class="fas fa-download mr-3"></i>ดาวน์โหลดรายงานคะแนนความสามัคคี
+            <div class="bg-white/95 backdrop-blur-md rounded-xl p-8 border border-gray-200">
+                <h2 class="text-gray-900 text-2xl font-bold mb-6">
+                    <i class="fas fa-download mr-3 text-purple-600"></i>ดาวน์โหลดรายงานคะแนนความสามัคคี
                 </h2>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div class="team-card rounded-xl p-6 text-white card-hover">
+                    <div class="bg-gradient-to-r from-red-100 to-pink-100 rounded-xl p-6 border border-red-200 card-hover">
                         <div class="text-center">
-                            <i class="fas fa-file-pdf text-6xl mb-4 text-red-400"></i>
-                            <h3 class="text-xl font-bold mb-2">รายงาน PDF</h3>
-                            <p class="text-white/80 mb-4">ดาวน์โหลดรายงานคะแนนความสามัคคีและประวัติการจัดการในรูปแบบ PDF</p>
-                            <button class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg transition-all w-full" onclick="exportPDF()">
+                            <i class="fas fa-file-pdf text-6xl mb-4 text-red-600"></i>
+                            <h3 class="text-xl font-bold mb-2 text-gray-900">รายงาน PDF</h3>
+                            <p class="text-gray-700 mb-4">ดาวน์โหลดรายงานคะแนนความสามัคคีและประวัติการจัดการในรูปแบบ PDF</p>
+                            <button class="bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white px-6 py-3 rounded-lg transition-all w-full shadow-lg" onclick="exportPDF()">
                                 <i class="fas fa-download mr-2"></i>ดาวน์โหลด PDF
                             </button>
                         </div>
                     </div>
 
-                    <div class="team-card rounded-xl p-6 text-white card-hover">
+                    <div class="bg-gradient-to-r from-green-100 to-emerald-100 rounded-xl p-6 border border-green-200 card-hover">
                         <div class="text-center">
-                            <i class="fas fa-file-excel text-6xl mb-4 text-green-400"></i>
-                            <h3 class="text-xl font-bold mb-2">รายงาน Excel</h3>
-                            <p class="text-white/80 mb-4">ดาวน์โหลดข้อมูลคะแนนความสามัคคีในรูปแบบ Excel สำหรับการวิเคราะห์</p>
-                            <button class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg transition-all w-full" onclick="exportExcel()">
+                            <i class="fas fa-file-excel text-6xl mb-4 text-green-600"></i>
+                            <h3 class="text-xl font-bold mb-2 text-gray-900">รายงาน Excel</h3>
+                            <p class="text-gray-700 mb-4">ดาวน์โหลดข้อมูลคะแนนความสามัคคีในรูปแบบ Excel สำหรับการวิเคราะห์</p>
+                            <button class="bg-gradient-to-r from-slate-500 to-slate-700 hover:from-slate-600 hover:to-slate-800 text-white px-6 py-3 rounded-lg transition-all w-full shadow-lg" onclick="exportExcel()">
                                 <i class="fas fa-download mr-2"></i>ดาวน์โหลด Excel
                             </button>
                         </div>
                     </div>
                 </div>
 
-                <div class="mt-8 bg-white/10 rounded-xl p-6">
-                    <h3 class="text-white text-lg font-bold mb-4">สรุปข้อมูลปัจจุบัน</h3>
+                <div class="mt-8 bg-gray-100 rounded-xl p-6 border border-gray-200">
+                    <h3 class="text-gray-900 text-lg font-bold mb-4">สรุปข้อมูลปัจจุบัน</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <h4 class="text-white font-medium mb-3">คะแนนความสามัคคีแต่ละคณะสี</h4>
+                            <h4 class="text-gray-900 font-medium mb-3">คะแนนความสามัคคีแต่ละคณะสี</h4>
                             <div id="exportSummary" class="space-y-2">
                                 <!-- Export summary will be loaded here -->
                             </div>
                         </div>
                         <div>
-                            <h4 class="text-white font-medium mb-3">สถิติการจัดการคะแนน</h4>
-                            <div class="space-y-2 text-white/80 text-sm">
-                                <p>รายการเพิ่มคะแนน: <span id="addCount" class="text-green-400 font-bold">0</span> รายการ</p>
-                                <p>รายการหักคะแนน: <span id="deductCount" class="text-red-400 font-bold">0</span> รายการ</p>
-                                <p>รายการทั้งหมด: <span id="totalCount" class="text-white font-bold">0</span> รายการ</p>
+                            <h4 class="text-gray-900 font-medium mb-3">สถิติการจัดการคะแนน</h4>
+                            <div class="space-y-2 text-gray-700 text-sm">
+                                <p>รายการเพิ่มคะแนน: <span id="addCount" class="text-green-600 font-bold">0</span> รายการ</p>
+                                <p>รายการหักคะแนน: <span id="deductCount" class="text-red-600 font-bold">0</span> รายการ</p>
+                                <p>รายการทั้งหมด: <span id="totalCount" class="text-gray-900 font-bold">0</span> รายการ</p>
                             </div>
                         </div>
                     </div>
@@ -626,7 +842,7 @@
         <div class="container mx-auto px-4 py-6">
             <div class="text-center text-white">
                 <p>&copy; 2025 โรงเรียนเตรียมอุดมศึกษาพัฒนาการสุวรรณภูมิ</p>
-                <p class="text-white/70 text-sm mt-2">ระบบรายงานผลการแข่งขันกีฬาภายใน - เชื่อมต่อ Firebase</p>
+                <p class="text-white/70 text-sm mt-2">ระบบรายงานผลการแข่งขันกีฬาภายใน หมวดความสามัคคีภายในคณะสี</p>
                 <button onclick="showFirebaseSetupModal()" class="text-white/60 hover:text-white text-xs mt-2 underline admin-only">
                     🔧 คำแนะนำการตั้งค่า Firebase
                 </button>
@@ -1007,7 +1223,7 @@
                     plugins: {
                         legend: {
                             labels: {
-                                color: 'white'
+                                color: '#1f2937'
                             }
                         }
                     },
@@ -1017,18 +1233,18 @@
                             min: 900,
                             max: 1100,
                             ticks: {
-                                color: 'white'
+                                color: '#1f2937'
                             },
                             grid: {
-                                color: 'rgba(255, 255, 255, 0.1)'
+                                color: 'rgba(31, 41, 55, 0.2)'
                             }
                         },
                         x: {
                             ticks: {
-                                color: 'white'
+                                color: '#1f2937'
                             },
                             grid: {
-                                color: 'rgba(255, 255, 255, 0.1)'
+                                color: 'rgba(31, 41, 55, 0.2)'
                             }
                         }
                     }
@@ -1069,7 +1285,8 @@
             
             teams.forEach((team, index) => {
                 const rankItem = document.createElement('div');
-                rankItem.className = 'flex items-center justify-between p-3 bg-white/10 rounded-lg';
+                rankItem.className = 'ranking-item flex items-center justify-between p-3 bg-white/90 rounded-lg border border-gray-200';
+                rankItem.style.animationDelay = `${index * 0.1}s`;
                 
                 let medal = '';
                 if (index === 0) medal = '🥇';
@@ -1082,10 +1299,10 @@
                         <span class="text-2xl mr-3">${medal}</span>
                         <div class="flex items-center">
                             <div class="w-4 h-4 rounded-full mr-2" style="background-color: ${team.color}"></div>
-                            <span class="text-white font-medium">${team.name}</span>
+                            <span class="text-gray-900 font-medium">${team.name}</span>
                         </div>
                     </div>
-                    <span class="text-white text-xl font-bold">${team.unityScore}</span>
+                    <span class="text-gray-900 text-xl font-bold">${team.unityScore}</span>
                 `;
                 
                 rankingDiv.appendChild(rankItem);
@@ -1103,13 +1320,13 @@
             
             teams.forEach(team => {
                 const summaryItem = document.createElement('div');
-                summaryItem.className = 'flex items-center justify-between text-white/80 text-sm';
+                summaryItem.className = 'flex items-center justify-between text-gray-700 text-sm';
                 summaryItem.innerHTML = `
                     <div class="flex items-center">
                         <div class="w-3 h-3 rounded-full mr-2" style="background-color: ${team.color}"></div>
                         ${team.name}
                     </div>
-                    <span class="font-bold">${team.unityScore} คะแนน</span>
+                    <span class="font-bold text-gray-900">${team.unityScore} คะแนน</span>
                 `;
                 summaryDiv.appendChild(summaryItem);
             });
@@ -1418,27 +1635,27 @@
             
             localData.unityHistory.forEach(record => {
                 const row = document.createElement('tr');
-                row.className = 'border-b border-white/10';
+                row.className = 'border-b border-gray-200 bg-white hover:bg-gray-50';
                 
                 const typeText = record.type === 'add' ? 'เพิ่ม' : 'หัก';
-                const typeClass = record.type === 'add' ? 'text-green-400' : 'text-red-400';
+                const typeClass = record.type === 'add' ? 'text-green-600' : 'text-red-600';
                 
                 row.innerHTML = `
-                    <td class="py-3 px-4">${record.date}</td>
-                    <td class="py-3 px-4">${record.teamName}</td>
+                    <td class="py-3 px-4 text-gray-900">${record.date}</td>
+                    <td class="py-3 px-4 text-gray-900">${record.teamName}</td>
                     <td class="py-3 px-4 text-center">
                         <span class="${typeClass} font-bold">${typeText}</span>
                     </td>
-                    <td class="py-3 px-4 text-center font-bold">${Math.abs(record.score)}</td>
-                    <td class="py-3 px-4">${record.notes}</td>
+                    <td class="py-3 px-4 text-center font-bold text-gray-900">${Math.abs(record.score)}</td>
+                    <td class="py-3 px-4 text-gray-900">${record.notes}</td>
                     <td class="py-3 px-4 text-center">
                         <div class="admin-only">
-                            <button class="text-red-400 hover:text-red-300" onclick="deleteUnityRecord('${record.id}')">
+                            <button class="text-red-600 hover:text-red-700" onclick="deleteUnityRecord('${record.id}')">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
                         <div class="guest-only">
-                            <span class="text-white/50 text-sm">-</span>
+                            <span class="text-gray-500 text-sm">-</span>
                         </div>
                     </td>
                 `;
@@ -1997,6 +2214,93 @@
             }
         }
 
+        // Show developer information
+        function showDeveloperInfo() {
+            Swal.fire({
+                title: '👨‍💻 ข้อมูลผู้จัดทำเว็บไซต์',
+                html: `
+                    <div class="text-center space-y-6">
+                        <div class="bg-gradient-to-r from-purple-500 to-blue-600 rounded-xl p-6 text-white">
+                            <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-code text-3xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold mb-2">นายเจตต์นิภัทธ์ เบ็ญจมิตรกุล</h3>
+                            <p class="text-white/90 text-sm mb-4">หัวหน้าฝ่ายพัฒนาสารสนเทศ สภานักเรียน</p>
+                            <p class="text-white/80 text-xs">ประจำปีการศึกษา 2568</p>
+                        </div>
+                        
+                        <div class="bg-gray-50 rounded-xl p-4">
+                            <h4 class="font-bold text-gray-800 mb-3">🏫 โรงเรียนเตรียมอุดมศึกษาพัฒนาการสุวรรณภูมิ</h4>
+                            <p class="text-gray-600 text-sm mb-4">ระบบรายงานผลการแข่งขันกีฬาภายใน</p>
+                            
+                            <div class="flex justify-center space-x-3">
+                                <button onclick="window.open('https://www.instagram.com/jx._niphxt/', '_blank', 'noopener,noreferrer')" 
+                                        class="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-4 py-2 rounded-lg transition-all text-sm shadow-lg">
+                                    <i class="fab fa-instagram mr-2"></i>Instagram
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="text-xs text-gray-500">
+                            <p>💻 พัฒนาด้วย HTML5, CSS3, JavaScript & Firebase</p>
+                            <p>🎨 ออกแบบด้วย Tailwind CSS & SweetAlert2</p>
+                        </div>
+                    </div>
+                `,
+                showConfirmButton: true,
+                confirmButtonText: 'ปิด',
+                confirmButtonColor: '#8b5cf6',
+                width: '500px'
+            });
+        }
+
+        // Show complaint information
+        function showComplaintInfo() {
+            Swal.fire({
+                title: '📢 ร้องเรียน / คัดค้าน',
+                html: `
+                    <div class="text-center space-y-6">
+                        <div class="bg-gradient-to-r from-orange-500 to-red-600 rounded-xl p-6 text-white">
+                            <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-megaphone text-3xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold mb-2">ช่องทางร้องเรียน</h3>
+                            <p class="text-white/90 text-sm">สภานักเรียน โรงเรียนเตรียมอุดมศึกษาพัฒนาการสุวรรณภูมิ</p>
+                        </div>
+                        
+                        <div class="bg-gray-50 rounded-xl p-4">
+                            <h4 class="font-bold text-gray-800 mb-3">📱 Line Official Account</h4>
+                            <p class="text-gray-600 text-sm mb-4">
+                                หากมีข้อสงสัย คัดค้าน หรือต้องการร้องเรียนเกี่ยวกับระบบหรือผลการแข่งขัน<br>
+                                สามารถติดต่อผ่าน Line Official Account ของสภานักเรียน
+                            </p>
+                            
+                            <div class="flex justify-center">
+                                <button onclick="window.open('https://lin.ee/piZEJBE', '_blank', 'noopener,noreferrer')" 
+                                        class="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-6 py-3 rounded-lg transition-all shadow-lg">
+                                    <i class="fab fa-line mr-2"></i>Line Official Account
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-blue-50 rounded-xl p-4">
+                            <h4 class="font-bold text-blue-800 mb-2">ℹ️ หมายเหตุ</h4>
+                            <ul class="text-blue-700 text-sm text-left space-y-1">
+                                <li>• ระบุชื่อ-นามสกุล และชั้นเรียนให้ชัดเจน</li>
+                                <li>• แนบหลักฐานประกอบ (ถ้ามี)</li>
+                                <li>• ใช้ภาษาที่สุภาพและสร้างสรรค์</li>
+                                <li>• สภานักเรียนจะตอบกลับภายใน 24-48 ชั่วโมง</li>
+                            </ul>
+                        </div>
+                    </div>
+                `,
+                showConfirmButton: true,
+                confirmButtonText: 'ปิด',
+                confirmButtonColor: '#f97316',
+                width: '550px'
+            });
+        }
+
         // Initialize default data in Firebase
         async function initializeDefaultData() {
             if (!isFirebaseReady) {
@@ -2079,5 +2383,5 @@
             updateExportSummary();
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9884cef616e4ee29',t:'MTc1OTQxNDQ5MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9886174cc4bfee29',t:'MTc1OTQyNzkzOS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
