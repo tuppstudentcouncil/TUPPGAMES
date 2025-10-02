@@ -97,6 +97,12 @@
             background: #ef4444;
             color: white;
         }
+        .admin-text {
+            display: none;
+        }
+        .guest-text {
+            display: none;
+        }
     </style>
 </head>
 <body class="gradient-bg min-h-screen">
@@ -183,8 +189,8 @@
                 <button class="nav-item active-nav text-white px-4 py-2 text-sm md:text-base" onclick="showSection('dashboard')">
                     <i class="fas fa-chart-line mr-2"></i>แดชบอร์ด
                 </button>
-                <button id="unityNav" class="nav-item text-white px-4 py-2 text-sm md:text-base admin-only" onclick="showSection('unity')">
-                    <i class="fas fa-heart mr-2"></i>จัดการคะแนนความสามัคคี
+                <button id="unityNav" class="nav-item text-white px-4 py-2 text-sm md:text-base" onclick="showSection('unity')">
+                    <i class="fas fa-heart mr-2"></i><span class="admin-text">จัดการ</span><span class="guest-text">ประวัติ</span>คะแนนความสามัคคี
                 </button>
                 <button id="teamsNav" class="nav-item text-white px-4 py-2 text-sm md:text-base admin-only" onclick="showSection('teams')">
                     <i class="fas fa-users mr-2"></i>จัดการคณะสี
@@ -289,7 +295,7 @@
         <div id="unity" class="section hidden">
             <div class="bg-white/20 backdrop-blur-md rounded-xl p-8">
                 <h2 class="text-white text-2xl font-bold mb-6">
-                    <i class="fas fa-heart mr-3"></i>จัดการคะแนนความสามัคคี
+                    <i class="fas fa-heart mr-3"></i><span class="admin-text">จัดการ</span><span class="guest-text">ประวัติ</span>คะแนนความสามัคคี
                 </h2>
                 
                 <!-- Add/Deduct Score Buttons -->
@@ -298,50 +304,96 @@
                         <h3 class="text-white text-lg font-bold mb-4">
                             <i class="fas fa-plus-circle mr-2 text-green-400"></i>เพิ่มคะแนน
                         </h3>
-                        <form id="addScoreForm" class="space-y-4">
-                            <div>
-                                <label class="block text-white text-sm font-medium mb-2">คณะสี</label>
-                                <select id="addTeamSelect" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-green-500">
-                                    <option value="">เลือกคณะสี</option>
-                                </select>
+                        <div class="admin-only">
+                            <form id="addScoreForm" class="space-y-4">
+                                <div>
+                                    <label class="block text-white text-sm font-medium mb-2">คณะสี</label>
+                                    <select id="addTeamSelect" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-green-500">
+                                        <option value="">เลือกคณะสี</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-white text-sm font-medium mb-2">คะแนนที่เพิ่ม</label>
+                                    <input type="number" id="addScore" min="1" max="100" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="1-100">
+                                </div>
+                                <div>
+                                    <label class="block text-white text-sm font-medium mb-2">เหตุผล</label>
+                                    <textarea id="addNotes" rows="2" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="เหตุผลในการเพิ่มคะแนน"></textarea>
+                                </div>
+                                <button type="submit" class="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg transition-all">
+                                    <i class="fas fa-plus mr-2"></i>เพิ่มคะแนน
+                                </button>
+                            </form>
+                        </div>
+                        <div class="guest-only">
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-white/60 text-sm font-medium mb-2">คณะสี</label>
+                                    <select disabled class="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white/50 cursor-not-allowed">
+                                        <option>เฉพาะ Admin เท่านั้น</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-white/60 text-sm font-medium mb-2">คะแนนที่เพิ่ม</label>
+                                    <input type="number" disabled class="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white/50 cursor-not-allowed" placeholder="เฉพาะ Admin">
+                                </div>
+                                <div>
+                                    <label class="block text-white/60 text-sm font-medium mb-2">เหตุผล</label>
+                                    <textarea disabled rows="2" class="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white/50 cursor-not-allowed" placeholder="เฉพาะ Admin เท่านั้น"></textarea>
+                                </div>
+                                <button disabled class="w-full bg-gray-500/50 text-white/50 py-3 rounded-lg cursor-not-allowed">
+                                    <i class="fas fa-lock mr-2"></i>เฉพาะ Admin เท่านั้น
+                                </button>
                             </div>
-                            <div>
-                                <label class="block text-white text-sm font-medium mb-2">คะแนนที่เพิ่ม</label>
-                                <input type="number" id="addScore" min="1" max="100" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="1-100">
-                            </div>
-                            <div>
-                                <label class="block text-white text-sm font-medium mb-2">เหตุผล</label>
-                                <textarea id="addNotes" rows="2" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="เหตุผลในการเพิ่มคะแนน"></textarea>
-                            </div>
-                            <button type="submit" class="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg transition-all">
-                                <i class="fas fa-plus mr-2"></i>เพิ่มคะแนน
-                            </button>
-                        </form>
+                        </div>
                     </div>
 
                     <div class="bg-red-500/20 rounded-xl p-6 border border-red-500/30">
                         <h3 class="text-white text-lg font-bold mb-4">
                             <i class="fas fa-minus-circle mr-2 text-red-400"></i>หักคะแนน
                         </h3>
-                        <form id="deductScoreForm" class="space-y-4">
-                            <div>
-                                <label class="block text-white text-sm font-medium mb-2">คณะสี</label>
-                                <select id="deductTeamSelect" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-red-500">
-                                    <option value="">เลือกคณะสี</option>
-                                </select>
+                        <div class="admin-only">
+                            <form id="deductScoreForm" class="space-y-4">
+                                <div>
+                                    <label class="block text-white text-sm font-medium mb-2">คณะสี</label>
+                                    <select id="deductTeamSelect" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-red-500">
+                                        <option value="">เลือกคณะสี</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-white text-sm font-medium mb-2">คะแนนที่หัก</label>
+                                    <input type="number" id="deductScore" min="1" max="100" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="1-100">
+                                </div>
+                                <div>
+                                    <label class="block text-white text-sm font-medium mb-2">เหตุผล</label>
+                                    <textarea id="deductNotes" rows="2" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="เหตุผลในการหักคะแนน"></textarea>
+                                </div>
+                                <button type="submit" class="w-full bg-red-500 hover:bg-red-600 text-white py-3 rounded-lg transition-all">
+                                    <i class="fas fa-minus mr-2"></i>หักคะแนน
+                                </button>
+                            </form>
+                        </div>
+                        <div class="guest-only">
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-white/60 text-sm font-medium mb-2">คณะสี</label>
+                                    <select disabled class="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white/50 cursor-not-allowed">
+                                        <option>เฉพาะ Admin เท่านั้น</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-white/60 text-sm font-medium mb-2">คะแนนที่หัก</label>
+                                    <input type="number" disabled class="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white/50 cursor-not-allowed" placeholder="เฉพาะ Admin">
+                                </div>
+                                <div>
+                                    <label class="block text-white/60 text-sm font-medium mb-2">เหตุผล</label>
+                                    <textarea disabled rows="2" class="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white/50 cursor-not-allowed" placeholder="เฉพาะ Admin เท่านั้น"></textarea>
+                                </div>
+                                <button disabled class="w-full bg-gray-500/50 text-white/50 py-3 rounded-lg cursor-not-allowed">
+                                    <i class="fas fa-lock mr-2"></i>เฉพาะ Admin เท่านั้น
+                                </button>
                             </div>
-                            <div>
-                                <label class="block text-white text-sm font-medium mb-2">คะแนนที่หัก</label>
-                                <input type="number" id="deductScore" min="1" max="100" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="1-100">
-                            </div>
-                            <div>
-                                <label class="block text-white text-sm font-medium mb-2">เหตุผล</label>
-                                <textarea id="deductNotes" rows="2" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="เหตุผลในการหักคะแนน"></textarea>
-                            </div>
-                            <button type="submit" class="w-full bg-red-500 hover:bg-red-600 text-white py-3 rounded-lg transition-all">
-                                <i class="fas fa-minus mr-2"></i>หักคะแนน
-                            </button>
-                        </form>
+                        </div>
                     </div>
                 </div>
 
@@ -859,6 +911,8 @@
         function setUserPermissions() {
             const adminElements = document.querySelectorAll('.admin-only');
             const guestElements = document.querySelectorAll('.guest-only');
+            const adminTexts = document.querySelectorAll('.admin-text');
+            const guestTexts = document.querySelectorAll('.guest-text');
             
             if (userRole === 'admin') {
                 // Show admin elements
@@ -869,6 +923,13 @@
                 guestElements.forEach(el => {
                     el.style.display = 'none';
                 });
+                // Show admin text, hide guest text
+                adminTexts.forEach(el => {
+                    el.style.display = 'inline';
+                });
+                guestTexts.forEach(el => {
+                    el.style.display = 'none';
+                });
             } else {
                 // Hide admin elements
                 adminElements.forEach(el => {
@@ -877,6 +938,13 @@
                 // Show guest-only elements
                 guestElements.forEach(el => {
                     el.style.display = '';
+                });
+                // Show guest text, hide admin text
+                adminTexts.forEach(el => {
+                    el.style.display = 'none';
+                });
+                guestTexts.forEach(el => {
+                    el.style.display = 'inline';
                 });
             }
         }
@@ -2011,5 +2079,5 @@
             updateExportSummary();
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98849abc53e9ee29',t:'MTc1OTQxMjM1Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9884a655304fee29',t:'MTc1OTQxMjgyNi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
