@@ -542,7 +542,7 @@
 
                 <!-- Unity Score History -->
                 <div class="bg-white/95 rounded-xl p-6 border border-gray-200">
-                    <h3 class="text-gray-900 text-lg font-bold mb-4">บันทึกการเพิ่มแลกหักคะแนน</h3>
+                    <h3 class="text-gray-900 text-lg font-bold mb-4">บันทึกการเพิ่มและหักคะแนน</h3>
                     <div class="overflow-x-auto">
                         <table class="w-full">
                             <thead>
@@ -916,10 +916,10 @@
             const statusEl = document.getElementById('firebaseStatus');
             if (connected) {
                 statusEl.className = 'firebase-status firebase-connected';
-                statusEl.innerHTML = '<i class="fas fa-circle mr-1"></i>Firebase เชื่อมต่อแล้ว';
+                statusEl.innerHTML = '<i class="fas fa-circle mr-1"></i>Connect';
             } else {
                 statusEl.className = 'firebase-status firebase-disconnected';
-                statusEl.innerHTML = '<i class="fas fa-circle mr-1"></i>Firebase ไม่เชื่อมต่อ';
+                statusEl.innerHTML = '<i class="fas fa-circle mr-1"></i>Waiting... to connect';
             }
         }
 
