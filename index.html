@@ -16,7 +16,7 @@
     <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, getDocs, query, orderBy, setDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getDatabase, ref, set, push, update, remove, onValue, get } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
         
         // Firebase configuration
         const firebaseConfig = {
@@ -32,11 +32,11 @@
 
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        const database = getDatabase(app);
         
         // Make Firebase available globally
-        window.db = db;
-        window.firestore = { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, getDocs, query, orderBy, setDoc };
+        window.database = database;
+        window.firebaseDB = { ref, set, push, update, remove, onValue, get };
         window.isFirebaseReady = true;
         
         // Initialize data when Firebase is ready
@@ -440,15 +440,15 @@
                 <div class="bg-blue-50 rounded-xl p-6">
                     <h3 class="text-lg font-bold text-blue-800 mb-3">
                         <span class="bg-blue-500 text-white rounded-full w-8 h-8 inline-flex items-center justify-center text-sm mr-3">1</span>
-                        ตรวจสอบ Firestore Database
+                        ตรวจสอบ Realtime Database
                     </h3>
                     <div class="ml-11 space-y-3">
-                        <p class="text-gray-700">เข้าไปที่ <strong>Firebase Console</strong> → เลือกโปรเจค → <strong>Firestore Database</strong></p>
+                        <p class="text-gray-700">เข้าไปที่ <strong>Firebase Console</strong> → เลือกโปรเจค → <strong>Realtime Database</strong></p>
                         <div class="bg-white p-4 rounded-lg border-l-4 border-blue-500">
-                            <p class="font-medium text-gray-800">✅ ต้องมี Collections เหล่านี้:</p>
+                            <p class="font-medium text-gray-800">✅ ต้องมี Paths เหล่านี้:</p>
                             <ul class="mt-2 space-y-1 text-sm text-gray-600">
-                                <li>• <code class="bg-gray-100 px-2 py-1 rounded">teams</code> - ข้อมูลคณะสี</li>
-                                <li>• <code class="bg-gray-100 px-2 py-1 rounded">unityHistory</code> - ประวัติคะแนนความสามัคคี</li>
+                                <li>• <code class="bg-gray-100 px-2 py-1 rounded">/teams</code> - ข้อมูลคณะสี</li>
+                                <li>• <code class="bg-gray-100 px-2 py-1 rounded">/unityHistory</code> - ประวัติคะแนนความสามัคคี</li>
                             </ul>
                         </div>
                     </div>
@@ -458,18 +458,15 @@
                 <div class="bg-green-50 rounded-xl p-6">
                     <h3 class="text-lg font-bold text-green-800 mb-3">
                         <span class="bg-green-500 text-white rounded-full w-8 h-8 inline-flex items-center justify-center text-sm mr-3">2</span>
-                        ตั้งค่า Security Rules
+                        ตั้งค่า Database Rules
                     </h3>
                     <div class="ml-11 space-y-3">
-                        <p class="text-gray-700">ไปที่ <strong>Firestore Database</strong> → <strong>Rules</strong> → แก้ไขเป็น:</p>
+                        <p class="text-gray-700">ไปที่ <strong>Realtime Database</strong> → <strong>Rules</strong> → แก้ไขเป็น:</p>
                         <div class="bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm overflow-x-auto">
-                            <pre>rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    // อนุญาตให้อ่านและเขียนได้ทุกคน (สำหรับ Demo)
-    match /{document=**} {
-      allow read, write: if true;
-    }
+                            <pre>{
+  "rules": {
+    ".read": true,
+    ".write": true
   }
 }</pre>
                         </div>
@@ -610,7 +607,7 @@ service cloud.firestore {
 
         // Firebase initialization function (called when Firebase is ready)
         window.initializeFirebaseData = async function() {
-            if (!window.db || !window.firestore) {
+            if (!window.database || !window.firebaseDB) {
                 console.log('Firebase not ready yet');
                 return;
             }
@@ -619,13 +616,13 @@ service cloud.firestore {
                 isFirebaseReady = true;
                 updateFirebaseStatus(true);
                 
-                // Initialize collections with default data if they don't exist
-                await initializeCollections();
+                // Initialize data with default values if they don't exist
+                await initializeRealtimeData();
                 
                 // Set up real-time listeners
                 setupRealtimeListeners();
                 
-                console.log('Firebase initialized successfully');
+                console.log('Firebase Realtime Database initialized successfully');
                 
                 // Load data after Firebase is ready
                 loadTeamsData();
@@ -658,41 +655,50 @@ service cloud.firestore {
             }
         }
 
-        // Initialize Firebase collections with default data
-        async function initializeCollections() {
-            const { collection, getDocs, setDoc, doc } = window.firestore;
+        // Initialize Realtime Database with default data
+        async function initializeRealtimeData() {
+            const { ref, get, set } = window.firebaseDB;
             
             try {
-                // Check if collections exist, if not create them with default data
-                const collections = ['teams', 'unityHistory'];
+                // Check if data exists, if not create with default data
+                const paths = ['teams', 'unityHistory'];
                 
-                for (const collectionName of collections) {
-                    const snapshot = await getDocs(collection(window.db, collectionName));
+                for (const path of paths) {
+                    const dataRef = ref(window.database, path);
+                    const snapshot = await get(dataRef);
                     
-                    if (snapshot.empty) {
-                        console.log(`Initializing ${collectionName} collection`);
-                        const data = localData[collectionName];
+                    if (!snapshot.exists()) {
+                        console.log(`Initializing ${path} data`);
+                        const data = localData[path];
                         
-                        for (const item of data) {
-                            await setDoc(doc(window.db, collectionName, item.id), item);
-                        }
+                        // Convert array to object with IDs as keys
+                        const dataObject = {};
+                        data.forEach(item => {
+                            dataObject[item.id] = item;
+                        });
+                        
+                        await set(dataRef, dataObject);
                     }
                 }
             } catch (error) {
-                console.error('Error initializing collections:', error);
+                console.error('Error initializing Realtime Database:', error);
             }
         }
 
-        // Set up real-time listeners for all collections
+        // Set up real-time listeners for all data paths
         function setupRealtimeListeners() {
-            const { collection, onSnapshot } = window.firestore;
+            const { ref, onValue } = window.firebaseDB;
 
             // Listen to teams changes
-            onSnapshot(collection(window.db, 'teams'), (snapshot) => {
+            const teamsRef = ref(window.database, 'teams');
+            onValue(teamsRef, (snapshot) => {
                 localData.teams = [];
-                snapshot.forEach((doc) => {
-                    localData.teams.push({ id: doc.id, ...doc.data() });
-                });
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    Object.keys(data).forEach(key => {
+                        localData.teams.push({ id: key, ...data[key] });
+                    });
+                }
                 loadTeamsData();
                 updateDashboard();
                 updateCharts();
@@ -700,71 +706,81 @@ service cloud.firestore {
             });
 
             // Listen to unity history changes
-            onSnapshot(collection(window.db, 'unityHistory'), (snapshot) => {
+            const unityRef = ref(window.database, 'unityHistory');
+            onValue(unityRef, (snapshot) => {
                 localData.unityHistory = [];
-                snapshot.forEach((doc) => {
-                    localData.unityHistory.push({ id: doc.id, ...doc.data() });
-                });
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    Object.keys(data).forEach(key => {
+                        localData.unityHistory.push({ id: key, ...data[key] });
+                    });
+                    // Sort by timestamp (newest first)
+                    localData.unityHistory.sort((a, b) => new Date(b.timestamp || 0) - new Date(a.timestamp || 0));
+                }
                 loadUnityData();
                 updateExportSummary();
             });
         }
 
-        // Firebase CRUD operations with better error handling
-        async function saveToFirebase(collectionName, data, docId = null) {
+        // Firebase Realtime Database CRUD operations with better error handling
+        async function saveToFirebase(path, data, docId = null) {
             if (!isFirebaseReady) {
                 console.log('Firebase not ready, saving locally only');
                 throw new Error('Firebase not connected');
             }
 
-            if (!window.db || !window.firestore) {
+            if (!window.database || !window.firebaseDB) {
                 console.log('Firebase objects not available');
                 throw new Error('Firebase not initialized');
             }
 
             try {
-                const { collection, addDoc, setDoc, doc } = window.firestore;
+                const { ref, set, push } = window.firebaseDB;
                 
-                console.log(`Saving to Firebase collection: ${collectionName}`, { docId, dataKeys: Object.keys(data) });
+                console.log(`Saving to Firebase path: ${path}`, { docId, dataKeys: Object.keys(data) });
                 
                 if (docId) {
-                    await setDoc(doc(window.db, collectionName, docId), data);
-                    console.log(`Successfully saved document ${docId} to ${collectionName}`);
+                    const dataRef = ref(window.database, `${path}/${docId}`);
+                    await set(dataRef, data);
+                    console.log(`Successfully saved document ${docId} to ${path}`);
                 } else {
-                    const docRef = await addDoc(collection(window.db, collectionName), data);
-                    console.log(`Successfully added document ${docRef.id} to ${collectionName}`);
-                    return docRef.id;
+                    const dataRef = ref(window.database, path);
+                    const newRef = await push(dataRef, data);
+                    console.log(`Successfully added document ${newRef.key} to ${path}`);
+                    return newRef.key;
                 }
             } catch (error) {
-                console.error(`Error saving to Firebase ${collectionName}:`, error);
+                console.error(`Error saving to Firebase ${path}:`, error);
                 throw new Error(`Firebase save failed: ${error.message}`);
             }
         }
 
-        async function updateFirebaseDoc(collectionName, docId, data) {
+        async function updateFirebaseDoc(path, docId, data) {
             if (!isFirebaseReady) {
                 console.log('Firebase not ready, updating locally only');
                 return;
             }
 
             try {
-                const { updateDoc, doc } = window.firestore;
-                await updateDoc(doc(window.db, collectionName, docId), data);
+                const { ref, update } = window.firebaseDB;
+                const dataRef = ref(window.database, `${path}/${docId}`);
+                await update(dataRef, data);
             } catch (error) {
                 console.error('Error updating Firebase document:', error);
                 throw error;
             }
         }
 
-        async function deleteFromFirebase(collectionName, docId) {
+        async function deleteFromFirebase(path, docId) {
             if (!isFirebaseReady) {
                 console.log('Firebase not ready, deleting locally only');
                 return;
             }
 
             try {
-                const { deleteDoc, doc } = window.firestore;
-                await deleteDoc(doc(window.db, collectionName, docId));
+                const { ref, remove } = window.firebaseDB;
+                const dataRef = ref(window.database, `${path}/${docId}`);
+                await remove(dataRef);
             } catch (error) {
                 console.error('Error deleting from Firebase:', error);
                 throw error;
@@ -1853,9 +1869,11 @@ service cloud.firestore {
                 }
 
                 // Test 2: Try to read data
-                const { collection, getDocs } = window.firestore;
-                const teamsSnapshot = await getDocs(collection(window.db, 'teams'));
-                results.push(`✅ อ่านข้อมูล Teams: ${teamsSnapshot.size} รายการ`);
+                const { ref, get } = window.firebaseDB;
+                const teamsRef = ref(window.database, 'teams');
+                const teamsSnapshot = await get(teamsRef);
+                const teamsCount = teamsSnapshot.exists() ? Object.keys(teamsSnapshot.val()).length : 0;
+                results.push(`✅ อ่านข้อมูล Teams: ${teamsCount} รายการ`);
 
                 // Test 3: Try to write test data
                 const testData = {
@@ -1944,8 +1962,8 @@ service cloud.firestore {
                 });
 
                 try {
-                    // Initialize collections
-                    await initializeCollections();
+                    // Initialize Realtime Database
+                    await initializeRealtimeData();
                     
                     // Force reload data
                     setTimeout(() => {
@@ -1993,5 +2011,5 @@ service cloud.firestore {
             updateExportSummary();
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9865c38a649f7b3e',t:'MTc1OTA4ODk2NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98849abc53e9ee29',t:'MTc1OTQxMjM1Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
