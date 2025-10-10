@@ -285,6 +285,7 @@
             <div class="mt-6 text-center">
                 <p class="text-gray-500 text-sm">Admin: แก้ไขข้อมูลได้ | ผู้เยี่ยมชม: ดูเท่านั้น</p>
                 <p class="text-gray-500 text-sm"></p>โรงเรียนเตรียมอุดมศึกษาพัฒนาการสุวรรณภูมิ</p>
+
             </div>
         </div>
     </div>
@@ -310,6 +311,9 @@
                         <p class="text-xs text-gray-500">เข้าสู่ระบบ: <span id="loginTime">10:30 น.</span></p>
                     </div>
                     <div class="flex space-x-2">
+                        <button class="bg-purple-500 hover:bg-purple-600 text-white px-3 py-2 rounded-lg transition-all text-sm admin-only shadow-lg" onclick="showUserManagement()" title="จัดการผู้ใช้">
+                            <i class="fas fa-users-cog"></i>
+                        </button>
                         <button class="bg-indigo-500 hover:bg-indigo-600 text-white px-3 py-2 rounded-lg transition-all text-sm admin-only shadow-lg" onclick="checkSystemStatus()" title="ตรวจสอบระบบ">
                             <i class="fas fa-stethoscope"></i>
                         </button>
@@ -331,7 +335,7 @@
                     <i class="fas fa-chart-line mr-2 text-blue-500"></i>แดชบอร์ด
                 </button>
                 <button id="unityNav" class="nav-item text-gray-700 px-4 py-2 text-sm md:text-base" onclick="showSection('unity')">
-                    <i class="fas fa-heart mr-2 text-red-500"></i><span class="admin-text">จัดการ</span><span class="guest-text">บันทึก</span>คะแนน
+                    <i class="fas fa-heart mr-2 text-red-500"></i><span class="admin-text">จัดการ</span><span class="guest-text">บันทึกคะแนน</span>
                 </button>
                 <button id="teamsNav" class="nav-item text-gray-700 px-4 py-2 text-sm md:text-base admin-only" onclick="showSection('teams')">
                     <i class="fas fa-users mr-2 text-green-500"></i>จัดการคณะสี
@@ -391,7 +395,7 @@
                 <div class="stats-card bg-white/95 backdrop-blur-md rounded-xl p-6 card-hover shadow-xl border border-gray-200">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-gray-700 text-sm font-medium">รายการเพิ่มและหักคะแนนทั้งหมด</p>
+                            <p class="text-gray-700 text-sm font-medium">รายการเพิ่มและหัดคะแนนทั้งหมด</p>
                             <p class="text-gray-900 text-3xl font-bold" id="totalRecords">4</p>
                         </div>
                         <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
@@ -439,7 +443,7 @@
         <div id="unity" class="section hidden">
             <div class="bg-white/95 backdrop-blur-md rounded-xl p-8 border border-gray-200">
                 <h2 class="text-gray-900 text-2xl font-bold mb-6">
-                    <i class="fas fa-heart mr-3 text-red-500"></i><span class="admin-text">จัดการ</span><span class="guest-text">ระบบ</span>การเพิ่มและหักคะแนน
+                    <i class="fas fa-heart mr-3 text-red-500"></i><span class="admin-text">จัดการ</span><span class="guest-text">ระบบการเพิ่มและหักคะแนน</span>
                 </h2>
                 
                 <!-- Add/Deduct Score Buttons -->
@@ -479,7 +483,7 @@
                                 </div>
                                 <div>
                                     <label class="block text-gray-600 text-sm font-medium mb-2">คะแนนที่เพิ่ม</label>
-                                    <input type="number" disabled class="w-full px-4 py-3 rounded-lg bg-gray-100 border border-gray-300 text-gray-500 cursor-not-allowed" placeholder="เฉพาะ Admin">
+                                    <input type="number" disabled class="w-full px-4 py-3 rounded-lg bg-gray-100 border border-gray-300 text-gray-500 cursor-not-allowed" placeholder="เฉพาะ Admin เท่านั้น">
                                 </div>
                                 <div>
                                     <label class="block text-gray-600 text-sm font-medium mb-2">เหตุผล</label>
@@ -527,7 +531,7 @@
                                 </div>
                                 <div>
                                     <label class="block text-gray-600 text-sm font-medium mb-2">คะแนนที่หัก</label>
-                                    <input type="number" disabled class="w-full px-4 py-3 rounded-lg bg-gray-100 border border-gray-300 text-gray-500 cursor-not-allowed" placeholder="เฉพาะ Admin">
+                                    <input type="number" disabled class="w-full px-4 py-3 rounded-lg bg-gray-100 border border-gray-300 text-gray-500 cursor-not-allowed" placeholder="เฉพาะ Admin เท่านั้น">
                                 </div>
                                 <div>
                                     <label class="block text-gray-600 text-sm font-medium mb-2">เหตุผล</label>
@@ -543,7 +547,7 @@
 
                 <!-- Unity Score History -->
                 <div class="bg-white/95 rounded-xl p-6 border border-gray-200">
-                    <h3 class="text-gray-900 text-lg font-bold mb-4">บันทึกการเพิ่มและหักคะแนน</h3>
+                    <h3 class="text-gray-900 text-lg font-bold mb-4">ประวัติการเพิ่มและหักคะแนน</h3>
                     <div class="overflow-x-auto">
                         <table class="w-full">
                             <thead>
@@ -593,8 +597,12 @@
                         </button>
                         
                         <div class="mt-4 text-xs text-gray-600">
-                            <p>สวัสดี เราชื่อซัคเซสนะ หลาย ๆ คนอาจจะเห็นหลายโปรเจกต์ที่เราทำให้สภาฯ เนอะ</p>
-                            <p>เราขอขอบคุณทุกคนที่ชื่นชอบ และเข้ามาใช้งานกันอย่างม้ากกกมายนะ 😊</p>
+                            <p>ร่วมกับ นายพีรวัส แซ่ลิ้ม หัวหน้าฝ่ายคณะสี สภานักเรียนประจำปีการศึกษา 2568</p>
+                            <p>นางสาววัลยา ชัยมา หัวหน้าฝ่ายคุณธรรมและจริยธรรม สภานักเรียนประจำปีการศึกษา 2568</p>
+                            <p>นายโสภน ทองมาลา รองประธานนักเรียนฝ่ายบุคคล สภานักเรียนประจำปีการศึกษา 2568</p>
+                            <p>และคุณครูกลุ่มสาระการเรียนรู้ สุขศึกษาและพลศึกษาทุกท่าน</p>
+               
+
                         </div>
                     </div>
                 </div>
@@ -613,8 +621,9 @@
                         </div>
                         
                         <div class="bg-gray-100 rounded-xl p-4 mb-6">
-                            <p class="text-gray-700 text-sm mb-0">
-                                หากมีข้อสงสัย คัดค้าน หรือต้องการร้องเรียนใด ๆ<br>
+                            <p class="text-gray-700 text-sm mb-4">
+                                                                    <br>
+                                หากมีข้อสงสัย คัดค้าน หรือต้องการร้องเรียนใด ๆ <br>
                                 สามารถติดต่อผ่าน Line Official Account ของสภานักเรียนได้เลยคั้บบ
                             </p>
                         </div>
@@ -627,7 +636,7 @@
                         <div class="bg-blue-50 rounded-xl p-4 border border-blue-200">
                             <h5 class="text-gray-900 font-bold mb-2">หมายเหตุ ℹ️</h5>
                             <ul class="text-gray-700 text-sm text-left space-y-1">
-                                <li>• ระบุชื่อ-นามสกุล และชั้นเรียนให้ชัดเจน</li>
+                                <li>• ระบุชื่อ-นามสกุล คณะสี และชั้นเรียนให้ชัดเจน</li>
                                 <li>• แนบหลักฐานประกอบ (ถ้ามี)</li>
                                 <li>• ใช้ภาษาที่สุภาพและสร้างสรรค์</li>
                                 <li>• ทางสภานักเรียนจะรับเรื่อง และส่งเรื่องไปยังคุณครูที่เกี่ยวข้องในการตรวจสอบต่อไป</li>
@@ -920,7 +929,7 @@
                 statusEl.innerHTML = '<i class="fas fa-circle mr-1"></i>Connect';
             } else {
                 statusEl.className = 'firebase-status firebase-disconnected';
-                statusEl.innerHTML = '<i class="fas fa-circle mr-1"></i>Waiting... to connect';
+                statusEl.innerHTML = '<i class="fas fa-circle mr-1"></i>Waiting to Connect...';
             }
         }
 
@@ -930,7 +939,7 @@
             
             try {
                 // Check if data exists, if not create with default data
-                const paths = ['teams', 'unityHistory'];
+                const paths = ['teams', 'unityHistory', 'users'];
                 
                 for (const path of paths) {
                     const dataRef = ref(window.database, path);
@@ -938,19 +947,107 @@
                     
                     if (!snapshot.exists()) {
                         console.log(`Initializing ${path} data`);
-                        const data = localData[path];
                         
-                        // Convert array to object with IDs as keys
-                        const dataObject = {};
-                        data.forEach(item => {
-                            dataObject[item.id] = item;
-                        });
-                        
-                        await set(dataRef, dataObject);
+                        if (path === 'users') {
+                            // Initialize default users with hashed passwords
+                            const defaultUsers = {
+                                'admin_tuppsc': {
+                                    id: 'admin_tuppsc',
+                                    username: 'TUPPSC',
+                                    passwordHash: await hashPassword('JetniphatInwza007naja'),
+                                    role: 'admin',
+                                    displayName: 'Admin (TUPPSC)',
+                                    createdAt: new Date().toISOString(),
+                                    lastLogin: null,
+                                    active: true
+                                },
+                                'admin_system': {
+                                    id: 'admin_system',
+                                    username: 'admin',
+                                    passwordHash: await hashPassword('admin123'),
+                                    role: 'admin',
+                                    displayName: 'ผู้ดูแลระบบ',
+                                    createdAt: new Date().toISOString(),
+                                    lastLogin: null,
+                                    active: true
+                                }
+                            };
+                            await set(dataRef, defaultUsers);
+                        } else {
+                            const data = localData[path];
+                            
+                            // Convert array to object with IDs as keys
+                            const dataObject = {};
+                            data.forEach(item => {
+                                dataObject[item.id] = item;
+                            });
+                            
+                            await set(dataRef, dataObject);
+                        }
                     }
                 }
             } catch (error) {
                 console.error('Error initializing Realtime Database:', error);
+            }
+        }
+
+        // Simple password hashing function (for demo purposes)
+        async function hashPassword(password) {
+            // In production, use a proper hashing library like bcrypt
+            // This is a simple hash for demonstration
+            const encoder = new TextEncoder();
+            const data = encoder.encode(password + 'TUPPSC_SALT_2025');
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        // Check user credentials from Firebase
+        async function checkUserCredentials(username, password) {
+            if (!isFirebaseReady || !window.database || !window.firebaseDB) {
+                throw new Error('Firebase not ready');
+            }
+
+            try {
+                const { ref, get } = window.firebaseDB;
+                const usersRef = ref(window.database, 'users');
+                const snapshot = await get(usersRef);
+                
+                if (!snapshot.exists()) {
+                    throw new Error('No users data found');
+                }
+                
+                const users = snapshot.val();
+                const hashedPassword = await hashPassword(password);
+                
+                // Find user with matching username and password
+                for (const userId in users) {
+                    const user = users[userId];
+                    if (user.username === username && 
+                        user.passwordHash === hashedPassword && 
+                        user.active) {
+                        
+                        // Update last login time
+                        const userRef = ref(window.database, `users/${userId}`);
+                        const { update } = window.firebaseDB;
+                        await update(userRef, {
+                            lastLogin: new Date().toISOString()
+                        });
+                        
+                        return {
+                            valid: true,
+                            role: user.role,
+                            displayName: user.displayName,
+                            userId: userId
+                        };
+                    }
+                }
+                
+                return { valid: false };
+                
+            } catch (error) {
+                console.error('Error checking credentials:', error);
+                throw error;
             }
         }
 
@@ -1057,21 +1154,59 @@
         }
 
         // Login functionality
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
             
-            // Check credentials
-            if (username === 'TUPPSC' && password === 'JetniphatInwza007naja') {
-                userRole = 'admin';
-                loginUser('Admin (TUPPSC)', 'ผู้ดูแลระบบ');
-            } else {
+            if (!username || !password) {
                 Swal.fire({
                     icon: 'error',
-                    title: 'เข้าสู่ระบบไม่สำเร็จ',
-                    text: 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง',
+                    title: 'ข้อมูลไม่ครบถ้วน',
+                    text: 'กรุณากรอกชื่อผู้ใช้และรหัสผ่าน',
+                    confirmButtonColor: '#3b82f6'
+                });
+                return;
+            }
+            
+            // Show loading
+            Swal.fire({
+                title: 'กำลังตรวจสอบข้อมูล...',
+                html: 'กำลังเชื่อมต่อกับ Firebase เพื่อยืนยันตัวตน',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
+            try {
+                // Check credentials from Firebase
+                const isValidUser = await checkUserCredentials(username, password);
+                
+                if (isValidUser.valid) {
+                    userRole = isValidUser.role;
+                    const displayName = isValidUser.displayName || username;
+                    const roleText = isValidUser.role === 'admin' ? 'ผู้ดูแลระบบ' : 'ผู้ใช้งาน';
+                    loginUser(displayName, roleText);
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'เข้าสู่ระบบไม่สำเร็จ',
+                        text: 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง',
+                        confirmButtonColor: '#3b82f6'
+                    });
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    html: `<div class="text-center">
+                        <div class="mb-2">ไม่สามารถเชื่อมต่อกับระบบได้</div>
+                        <div class="text-sm text-gray-600">กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต</div>
+                        <div class="text-xs mt-2">หรือใช้โหมดผู้เยี่ยมชมแทน</div>
+                    </div>`,
                     confirmButtonColor: '#3b82f6'
                 });
             }
@@ -2037,16 +2172,16 @@
                     </div>`;
                     
                     // Check Firebase objects
-                    const hasDB = !!window.db;
-                    const hasFirestore = !!window.firestore;
+                    const hasDB = !!window.database;
+                    const hasFirebaseDB = !!window.firebaseDB;
                     statusHTML += `<div class="flex justify-between py-1">
                         <span>Firebase Database:</span>
                         <span class="${hasDB ? 'text-green-600' : 'text-red-600'}">${hasDB ? '✅ พร้อม' : '❌ ไม่พร้อม'}</span>
                     </div>`;
                     
                     statusHTML += `<div class="flex justify-between py-1">
-                        <span>Firestore Functions:</span>
-                        <span class="${hasFirestore ? 'text-green-600' : 'text-red-600'}">${hasFirestore ? '✅ พร้อม' : '❌ ไม่พร้อม'}</span>
+                        <span>Firebase Functions:</span>
+                        <span class="${hasFirebaseDB ? 'text-green-600' : 'text-red-600'}">${hasFirebaseDB ? '✅ พร้อม' : '❌ ไม่พร้อม'}</span>
                     </div>`;
                     
                     // Check data
@@ -2060,8 +2195,28 @@
                         <span class="text-blue-600">📝 ${localData.unityHistory.length} รายการ</span>
                     </div>`;
                     
+                    // Check users data
+                    if (isFirebaseReady) {
+                        try {
+                            const { ref, get } = window.firebaseDB;
+                            const usersRef = ref(window.database, 'users');
+                            const usersSnapshot = await get(usersRef);
+                            const usersCount = usersSnapshot.exists() ? Object.keys(usersSnapshot.val()).length : 0;
+                            
+                            statusHTML += `<div class="flex justify-between py-1">
+                                <span>Users Data:</span>
+                                <span class="text-blue-600">👥 ${usersCount} ผู้ใช้</span>
+                            </div>`;
+                        } catch (error) {
+                            statusHTML += `<div class="flex justify-between py-1">
+                                <span>Users Data:</span>
+                                <span class="text-red-600">❌ ข้อผิดพลาด</span>
+                            </div>`;
+                        }
+                    }
+                    
                     // Test Firebase write
-                    if (isFirebaseReady && hasDB && hasFirestore) {
+                    if (isFirebaseReady && hasDB && hasFirebaseDB) {
                         statusHTML += `<div class="flex justify-between py-1">
                             <span>Firebase Write Test:</span>
                             <span class="text-yellow-600">🔄 กำลังทดสอบ...</span>
@@ -2122,6 +2277,213 @@
                     }, 2000);
                 }
             });
+        }
+
+        // User management functions
+        async function showUserManagement() {
+            if (userRole !== 'admin') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ไม่มีสิทธิ์เข้าถึง',
+                    text: 'เฉพาะผู้ดูแลระบบเท่านั้นที่สามารถจัดการผู้ใช้ได้',
+                    confirmButtonColor: '#3b82f6'
+                });
+                return;
+            }
+
+            try {
+                // Load users from Firebase
+                const { ref, get } = window.firebaseDB;
+                const usersRef = ref(window.database, 'users');
+                const snapshot = await get(usersRef);
+                
+                let usersHTML = '<div class="text-center text-gray-500">ไม่มีข้อมูลผู้ใช้</div>';
+                
+                if (snapshot.exists()) {
+                    const users = snapshot.val();
+                    usersHTML = '<div class="space-y-3">';
+                    
+                    Object.keys(users).forEach(userId => {
+                        const user = users[userId];
+                        const lastLogin = user.lastLogin ? 
+                            new Date(user.lastLogin).toLocaleDateString('th-TH') : 
+                            'ยังไม่เคยเข้าสู่ระบบ';
+                        
+                        const statusColor = user.active ? 'text-green-600' : 'text-red-600';
+                        const statusText = user.active ? '✅ ใช้งานได้' : '❌ ปิดใช้งาน';
+                        
+                        usersHTML += `
+                            <div class="bg-gray-50 rounded-lg p-3 text-left">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <div class="font-bold text-gray-800">${user.displayName}</div>
+                                        <div class="text-sm text-gray-600">Username: ${user.username}</div>
+                                        <div class="text-sm text-gray-600">Role: ${user.role}</div>
+                                        <div class="text-xs text-gray-500">เข้าสู่ระบบล่าสุด: ${lastLogin}</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-sm ${statusColor}">${statusText}</div>
+                                        <button onclick="toggleUserStatus('${userId}', ${!user.active})" 
+                                                class="text-xs px-2 py-1 rounded mt-1 ${user.active ? 'bg-red-100 text-red-600 hover:bg-red-200' : 'bg-green-100 text-green-600 hover:bg-green-200'}">
+                                            ${user.active ? 'ปิดใช้งาน' : 'เปิดใช้งาน'}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    usersHTML += '</div>';
+                }
+
+                Swal.fire({
+                    title: '👥 จัดการผู้ใช้งาน',
+                    html: `
+                        <div class="text-left">
+                            <div class="mb-4">
+                                <button onclick="showAddUserModal()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm">
+                                    <i class="fas fa-plus mr-2"></i>เพิ่มผู้ใช้ใหม่
+                                </button>
+                            </div>
+                            <div class="max-h-96 overflow-y-auto">
+                                ${usersHTML}
+                            </div>
+                        </div>
+                    `,
+                    showConfirmButton: true,
+                    confirmButtonText: 'ปิด',
+                    confirmButtonColor: '#3b82f6',
+                    width: '600px'
+                });
+
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'ไม่สามารถโหลดข้อมูลผู้ใช้ได้',
+                    confirmButtonColor: '#3b82f6'
+                });
+            }
+        }
+
+        // Add new user
+        async function showAddUserModal() {
+            const { value: formValues } = await Swal.fire({
+                title: 'เพิ่มผู้ใช้ใหม่',
+                html: `
+                    <div class="grid grid-cols-1 gap-4 text-left">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">ชื่อผู้ใช้</label>
+                            <input type="text" id="newUsername" class="w-full px-3 py-2 border rounded-lg" placeholder="ชื่อผู้ใช้">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">รหัสผ่าน</label>
+                            <input type="password" id="newPassword" class="w-full px-3 py-2 border rounded-lg" placeholder="รหัสผ่าน">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">ชื่อที่แสดง</label>
+                            <input type="text" id="newDisplayName" class="w-full px-3 py-2 border rounded-lg" placeholder="ชื่อที่แสดงในระบบ">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">บทบาท</label>
+                            <select id="newRole" class="w-full px-3 py-2 border rounded-lg">
+                                <option value="admin">ผู้ดูแลระบบ (Admin)</option>
+                                <option value="user">ผู้ใช้งาน (User)</option>
+                            </select>
+                        </div>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'เพิ่ม',
+                cancelButtonText: 'ยกเลิก',
+                confirmButtonColor: '#3b82f6',
+                preConfirm: () => {
+                    const username = document.getElementById('newUsername').value;
+                    const password = document.getElementById('newPassword').value;
+                    const displayName = document.getElementById('newDisplayName').value;
+                    const role = document.getElementById('newRole').value;
+                    
+                    if (!username || !password || !displayName) {
+                        Swal.showValidationMessage('กรุณากรอกข้อมูลให้ครบถ้วน');
+                        return false;
+                    }
+                    
+                    if (password.length < 6) {
+                        Swal.showValidationMessage('รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร');
+                        return false;
+                    }
+                    
+                    return { username, password, displayName, role };
+                }
+            });
+
+            if (formValues) {
+                try {
+                    const userId = 'user_' + Date.now();
+                    const newUser = {
+                        id: userId,
+                        username: formValues.username,
+                        passwordHash: await hashPassword(formValues.password),
+                        role: formValues.role,
+                        displayName: formValues.displayName,
+                        createdAt: new Date().toISOString(),
+                        lastLogin: null,
+                        active: true
+                    };
+                    
+                    await saveToFirebase('users', newUser, userId);
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'เพิ่มผู้ใช้สำเร็จ!',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                    
+                    // Refresh user management modal
+                    setTimeout(() => showUserManagement(), 1600);
+                    
+                } catch (error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'เกิดข้อผิดพลาด',
+                        text: 'ไม่สามารถเพิ่มผู้ใช้ได้',
+                        confirmButtonColor: '#3b82f6'
+                    });
+                }
+            }
+        }
+
+        // Toggle user status
+        async function toggleUserStatus(userId, newStatus) {
+            try {
+                const { ref, update } = window.firebaseDB;
+                const userRef = ref(window.database, `users/${userId}`);
+                
+                await update(userRef, {
+                    active: newStatus
+                });
+                
+                const statusText = newStatus ? 'เปิดใช้งาน' : 'ปิดใช้งาน';
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: `${statusText}ผู้ใช้สำเร็จ!`,
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+                
+                // Refresh user management modal
+                setTimeout(() => showUserManagement(), 1600);
+                
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'ไม่สามารถเปลี่ยนสถานะผู้ใช้ได้',
+                    confirmButtonColor: '#3b82f6'
+                });
+            }
         }
 
         // Firebase Setup Modal functions
@@ -2384,5 +2746,5 @@
             updateExportSummary();
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9886174cc4bfee29',t:'MTc1OTQyNzkzOS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'989d01393496ee29',t:'MTc1OTY2ODIwNy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
